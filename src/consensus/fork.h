@@ -4,6 +4,7 @@
 #ifndef ESPERS_FORK_H
 #define ESPERS_FORK_H
 
+#include "core/chainparams.h"
 #include "primitives/bignum.h"
 
 /** Genesis Block Height */
