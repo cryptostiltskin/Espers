@@ -4,7 +4,7 @@
 #include <QWidget>
 
 namespace Ui {
-    class SiteOnChain;
+class SiteOnChain;
 }
 class ClientModel;
 class WalletModel;
@@ -19,20 +19,19 @@ class SiteOnChain : public QWidget
     Q_OBJECT
 
 public:
-    explicit SiteOnChain(QWidget *parent = 0);
+    explicit SiteOnChain(QWidget* parent = 0);
     ~SiteOnChain();
-    void setModel(SiteOnChain *model);
+    void setModel(SiteOnChain* model);
 
 public slots:
 
 signals:
 
 private:
-    Ui::SiteOnChain *ui;
-        WalletModel *model;
+    Ui::SiteOnChain* ui;
+    WalletModel* model;
 
 private slots:
-
 };
 
 #endif // GENEREATEPAGE_H

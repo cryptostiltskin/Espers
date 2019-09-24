@@ -5,96 +5,89 @@
 #include "ui_clientcontrolpage.h"
 
 #include "clientmodel.h"
-#include "walletmodel.h"
-#include "optionsmodel.h"
-#include "guiutil.h"
 #include "guiconstants.h"
+#include "guiutil.h"
+#include "optionsmodel.h"
+#include "walletmodel.h"
 
 #include <QAbstractItemDelegate>
+#include <QClipboard>
+#include <QMenu>
+#include <QMessageBox>
 #include <QPainter>
 #include <QSortFilterProxyModel>
-#include <QClipboard>
-#include <QMessageBox>
-#include <QMenu>
 
 // For reading client version
 #include <QDir>
-#include <QTextStream>
 #include <QProcess>
+#include <QTextStream>
 
 #define DECORATION_SIZE 48
 #define NUM_ITEMS 10
 
-ClientControlPage::ClientControlPage(QWidget *parent) :
-    ui(new Ui::ClientControlPage),
-    model(0)
+ClientControlPage::ClientControlPage(QWidget* parent) : ui(new Ui::ClientControlPage),
+                                                        model(0)
 {
     ui->setupUi(this);
     // CHECK IF STANDALONE
     QFileInfo check_standalone(QDir::currentPath());
-    if(!check_standalone.exists())
-    {
+    if (!check_standalone.exists()) {
         // C.C.S
-      //  ui->chck4_upd8->setEnabled(false);
-      //  ui->dwngrd_opt->setEnabled(false);
-      // ui->checkBoxupd8->setEnabled(false);
-      //  ui->minCLIE->setEnabled(false);
-      //  ui->CS_submit->setEnabled(false);
-      //  ui->br_input->setEnabled(false);
-      //  ui->BR_submit->setEnabled(false);
-     //   ui->optin_test->setEnabled(false);
-     //   ui->AU_apply->setEnabled(false);
+        //  ui->chck4_upd8->setEnabled(false);
+        //  ui->dwngrd_opt->setEnabled(false);
+        // ui->checkBoxupd8->setEnabled(false);
+        //  ui->minCLIE->setEnabled(false);
+        //  ui->CS_submit->setEnabled(false);
+        //  ui->br_input->setEnabled(false);
+        //  ui->BR_submit->setEnabled(false);
+        //   ui->optin_test->setEnabled(false);
+        //   ui->AU_apply->setEnabled(false);
 
         QMessageBox::warning(this, "Error",
-                           "Local directory not found... Somehow. Error 54",
-                           QMessageBox::Ok );
-    }
-    else if(check_standalone.exists())
-    {
+            "Local directory not found... Somehow. Error 54",
+            QMessageBox::Ok);
+    } else if (check_standalone.exists()) {
         // TODO: Fix this up for OS porting
 #ifdef Q_OS_WIN
         // READ INSTALLED VERSION
         QFile file(":/version");
-        if(!file.open(QIODevice::ReadOnly | QIODevice::Text))
+        if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
             // error out if not accesable
-           QMessageBox::information(0,"info",file.errorString());
+            QMessageBox::information(0, "info", file.errorString());
         QTextStream in(&file);
         ui->instVER->setPlainText(in.readLine());
 
         // READ LIVE (CURRENT) VERSION
         //open a file
         QFile iniFILE(QDir::currentPath() + "/ESP.cfg");
-       // if(!iniFILE.open(QIODevice::ReadOnly | QIODevice::Text))
-            // error out if not accesable
-           // QMessageBox::information(0,"info",iniFILE.errorString());
+        // if(!iniFILE.open(QIODevice::ReadOnly | QIODevice::Text))
+        // error out if not accesable
+        // QMessageBox::information(0,"info",iniFILE.errorString());
         QTextStream streamINI(&iniFILE);
         ui->dDIR->setPlainText(streamINI.readLine());
 
         QDir directory(ui->dDIR->toPlainText());
         QString curtxt = directory.filePath("version.check");
-            iniFILE.close();
+        iniFILE.close();
 
         QFile fileV(curtxt);
         //if(!fileV.open(QIODevice::ReadOnly | QIODevice::Text))
-            // error out if not accesable
-            //QMessageBox::information(0,"info",fileV.errorString());
+        // error out if not accesable
+        //QMessageBox::information(0,"info",fileV.errorString());
         QTextStream inV(&fileV);
         ui->liveVER->setPlainText(inV.readAll());
 
         QFileInfo check_call(directory.filePath("upd8.skip"));
-        if (check_call.exists() && check_call.isFile())
-        {
+        if (check_call.exists() && check_call.isFile()) {
             ui->checkBoxupd8->setChecked(false);
         }
 
         // Non-client Call
-        else if(!check_call.exists())
-        {
-             ui->checkBoxupd8->setChecked(true);
+        else if (!check_call.exists()) {
+            ui->checkBoxupd8->setChecked(true);
         }
 #endif
     }
-
 }
 
 ClientControlPage::~ClientControlPage()
@@ -106,24 +99,23 @@ ClientControlPage::~ClientControlPage()
 void ClientControlPage::on_chck4_upd8_clicked()
 {
     QFile iniFILE(QDir::currentPath() + "/ESP.cfg");
-    if(!iniFILE.open(QIODevice::ReadOnly | QIODevice::Text))
+    if (!iniFILE.open(QIODevice::ReadOnly | QIODevice::Text))
         // error out if not accesable
-        QMessageBox::information(0,"info",iniFILE.errorString());
+        QMessageBox::information(0, "info", iniFILE.errorString());
     QTextStream streamINI(&iniFILE);
     ui->dDIR->setPlainText(streamINI.readLine());
 
     QDir directory(ui->dDIR->toPlainText());
     QString genCheck = directory.filePath("version.call");
-        iniFILE.close();
+    iniFILE.close();
 
     QFile genCall(genCheck);
-    if(genCall.open(QIODevice::ReadWrite))
-    {
-    QTextStream saturate(&genCall);
-    saturate << "Temp File that flags verCheck.exe" << endl;
+    if (genCall.open(QIODevice::ReadWrite)) {
+        QTextStream saturate(&genCall);
+        saturate << "Temp File that flags verCheck.exe" << endl;
     }
 
-    QProcess *process = new QProcess();
+    QProcess* process = new QProcess();
     QString fileX = QDir::currentPath() + "/Espers_Launcher.exe";
     process->start(fileX);
 }
@@ -131,84 +123,74 @@ void ClientControlPage::on_chck4_upd8_clicked()
 void ClientControlPage::on_dwngrd_opt_clicked()
 {
     QMessageBox::information(this, "No Available Versions",
-                       "v0.8.4.2 cannot be downgraded, only later versions can.",
-                       QMessageBox::Ok );
+        "v0.8.4.2 cannot be downgraded, only later versions can.",
+        QMessageBox::Ok);
 }
 
 void ClientControlPage::on_CS_submit_clicked()
 {
-    if(ui->minCLIE->isChecked())
-    {
-    QMessageBox::information(this, "Already Installed",
-                       "You are already running the Minimalistic Client",
-                       QMessageBox::Ok );
-    this->ui->cliePREV->setText("Select a Client to Preview");
+    if (ui->minCLIE->isChecked()) {
+        QMessageBox::information(this, "Already Installed",
+            "You are already running the Minimalistic Client",
+            QMessageBox::Ok);
+        this->ui->cliePREV->setText("Select a Client to Preview");
 
-  //  if(ui->radioButtonViewLocalData->isChecked())
-   //     {
+        //  if(ui->radioButtonViewLocalData->isChecked())
+        //     {
         ui->minCLIE->setChecked(false);
         ui->minCLIE->setCheckable(false);
         ui->minCLIE->update();
         ui->minCLIE->setCheckable(true);
-    //    }
+        //    }
 
-    }
-    else
-    {
-    QMessageBox::information(this, "Nothing Selected",
-                        "Please make a selection first.",
-                        QMessageBox::Ok );
+    } else {
+        QMessageBox::information(this, "Nothing Selected",
+            "Please make a selection first.",
+            QMessageBox::Ok);
     }
 }
 
 void ClientControlPage::on_BR_submit_clicked()
 {
     QMessageBox::information(this, "Coming in v0.8.4.3",
-                       "Please email your issues to CryptoCoderz@gmail.com",
-                       QMessageBox::Ok );
+        "Please email your issues to CryptoCoderz@gmail.com",
+        QMessageBox::Ok);
 }
 
 void ClientControlPage::on_AU_apply_clicked()
 {
     QFile iniFILE(QDir::currentPath() + "/ESP.cfg");
-    if(!iniFILE.open(QIODevice::ReadOnly | QIODevice::Text))
+    if (!iniFILE.open(QIODevice::ReadOnly | QIODevice::Text))
         // error out if not accesable
-        QMessageBox::information(0,"info",iniFILE.errorString());
+        QMessageBox::information(0, "info", iniFILE.errorString());
     QTextStream streamINI(&iniFILE);
     ui->dDIR->setPlainText(streamINI.readLine());
 
     QDir directory(ui->dDIR->toPlainText());
     QString upSkip = directory.filePath("upd8.skip");
     QString rmSKIP = directory.filePath("upd8.skip");
-        iniFILE.close();
+    iniFILE.close();
 
-    if(ui->checkBoxupd8->isChecked())
-    {
+    if (ui->checkBoxupd8->isChecked()) {
         if (QFile::exists(rmSKIP)) {
             QFile::remove(rmSKIP);
         }
-    }
-    else
-    {
-    // Skip Updating       
-    QFile skipCall(upSkip);
-    if(skipCall.open(QIODevice::ReadWrite))
-    {
-    QTextStream saturate(&skipCall);
-    saturate << "Temp File that flags verCheck.exe" << endl;
-    }
+    } else {
+        // Skip Updating
+        QFile skipCall(upSkip);
+        if (skipCall.open(QIODevice::ReadWrite)) {
+            QTextStream saturate(&skipCall);
+            saturate << "Temp File that flags verCheck.exe" << endl;
+        }
     }
 }
 
 void ClientControlPage::on_minCLIE_clicked()
 {
-    if(ui->minCLIE->isChecked())
-    {
-    QPixmap pix(":/images/0840m");
-    this->ui->cliePREV->setPixmap(pix);
-    }
-    else
-    {
+    if (ui->minCLIE->isChecked()) {
+        QPixmap pix(":/images/0840m");
+        this->ui->cliePREV->setPixmap(pix);
+    } else {
         //Do Nothing
     }
 }

@@ -1,21 +1,19 @@
 #include "editconfigdialog.h"
-#include "ui_editconfigdialog.h"
 #include "clientmodel.h"
+#include "ui_editconfigdialog.h"
 
 #include "consensus/version.h"
 
-EditConfigDialog::EditConfigDialog(QWidget *parent) :
-    QDialog(parent),
-    ui(new Ui::EditConfigDialog),
-    model(0)
+EditConfigDialog::EditConfigDialog(QWidget* parent) : QDialog(parent),
+                                                      ui(new Ui::EditConfigDialog),
+                                                      model(0)
 {
     ui->setupUi(this);
 }
 
-void EditConfigDialog::setModel(ClientModel *model)
+void EditConfigDialog::setModel(ClientModel* model)
 {
-    if(model)
-    {
+    if (model) {
         this->model = model;
         ui->configText->setText(this->model->getConfigFileContent());
     }
@@ -28,8 +26,7 @@ EditConfigDialog::~EditConfigDialog()
 
 void EditConfigDialog::accept()
 {
-    if (this->model)
-    {
+    if (this->model) {
         this->model->setConfigFileContent(ui->configText->toPlainText());
     }
     QDialog::accept();

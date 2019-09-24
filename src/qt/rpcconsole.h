@@ -6,24 +6,24 @@
 
 #include "peertablemodel.h"
 
-#include <QWidget>
 #include <QCompleter>
+#include <QWidget>
 
 namespace Ui {
-    class RPCConsole;
+class RPCConsole;
 }
 class ClientModel;
 
 /** Local Bitcoin RPC console. */
-class RPCConsole: public QWidget
+class RPCConsole : public QWidget
 {
     Q_OBJECT
 
 public:
-    explicit RPCConsole(QWidget *parent = 0);
+    explicit RPCConsole(QWidget* parent = 0);
     ~RPCConsole();
 
-    void setClientModel(ClientModel *model);
+    void setClientModel(ClientModel* model);
 
     enum MessageClass {
         MC_ERROR,
@@ -34,8 +34,8 @@ public:
     };
 
 protected:
-    virtual bool eventFilter(QObject* obj, QEvent *event);
-    void keyPressEvent(QKeyEvent *);
+    virtual bool eventFilter(QObject* obj, QEvent* event);
+    void keyPressEvent(QKeyEvent*);
 
 private slots:
     void on_lineEdit_returnPressed();
@@ -48,9 +48,9 @@ private slots:
     void on_sldGraphRange_valueChanged(int value);
     /** update traffic statistics */
     void updateTrafficStats(quint64 totalBytesIn, quint64 totalBytesOut);
-    void resizeEvent(QResizeEvent *event);
-    void showEvent(QShowEvent *event);
-    void hideEvent(QHideEvent *event);
+    void resizeEvent(QResizeEvent* event);
+    void showEvent(QShowEvent* event);
+    void hideEvent(QHideEvent* event);
     /** Show custom context menu on Peers tab */
     void showPeersTableContextMenu(const QPoint& point);
     /** Show custom context menu on Bans tab */
@@ -68,7 +68,7 @@ private slots:
 
 public slots:
     void clear();
-    void message(int category, const QString &message, bool html = false);
+    void message(int category, const QString& message, bool html = false);
     /** Set number of connections shown in the UI */
     void setNumConnections(int count);
     /** Set number of blocks shown in the UI */
@@ -78,10 +78,10 @@ public slots:
     /** Scroll console view to end */
     void scrollToEnd();
     /** Handle selection of peer in peers list */
-    void peerSelected(const QItemSelection &selected, const QItemSelection &deselected);
+    void peerSelected(const QItemSelection& selected, const QItemSelection& deselected);
     /** Handle updated peer information */
     void peerLayoutChanged();
-   /** Disconnect a selected node on the Peers tab */
+    /** Disconnect a selected node on the Peers tab */
     void disconnectSelectedNode();
     /** Ban a selected node on the Peers tab */
     void banSelectedNode(int bantime);
@@ -92,17 +92,16 @@ public slots:
 signals:
     // For RPC command executor
     void stopExecutor();
-    void cmdRequest(const QString &command);
+    void cmdRequest(const QString& command);
 
 private:
     static QString FormatBytes(quint64 bytes);
     void startExecutor();
     void setTrafficGraphRange(int mins);
     /** show detailed information on ui about selected node */
-    void updateNodeDetail(const CNodeCombinedStats *stats);
+    void updateNodeDetail(const CNodeCombinedStats* stats);
 
-    enum ColumnWidths
-    {
+    enum ColumnWidths {
         ADDRESS_COLUMN_WIDTH = 200,
         SUBVERSION_COLUMN_WIDTH = 100,
         PING_COLUMN_WIDTH = 80,
@@ -111,15 +110,14 @@ private:
 
     };
 
-    Ui::RPCConsole *ui;
-    ClientModel *clientModel;
+    Ui::RPCConsole* ui;
+    ClientModel* clientModel;
     QStringList history;
     int historyPtr;
     NodeId cachedNodeid;
-    QMenu *peersTableContextMenu;
-    QMenu *banTableContextMenu;
-    QCompleter *autoCompleter;
-
+    QMenu* peersTableContextMenu;
+    QMenu* banTableContextMenu;
+    QCompleter* autoCompleter;
 };
 
 #endif // RPCCONSOLE_H

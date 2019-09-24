@@ -1,21 +1,21 @@
 #include "overviewpage.h"
-#include "ui_overviewpage.h"
 #include "bitcoinunits.h"
 #include "clientmodel.h"
-#include "walletmodel.h"
+#include "consensus/kernel.h"
 #include "core/main.h"
 #include "core/wallet.h"
+#include "guiconstants.h"
+#include "guiutil.h"
+#include "optionsmodel.h"
 #include "primitives/base58.h"
+#include "rpc/rpcclient.h"
+#include "rpc/rpcserver.h"
+#include "transactionfilterproxy.h"
 #include "transactionrecord.h"
 #include "transactiontablemodel.h"
-#include "transactionfilterproxy.h"
-#include "optionsmodel.h"
-#include "guiutil.h"
-#include "guiconstants.h"
+#include "ui_overviewpage.h"
 #include "util/init.h"
-#include "rpc/rpcserver.h"
-#include "rpc/rpcclient.h"
-#include "consensus/kernel.h"
+#include "walletmodel.h"
 
 using namespace json_spirit;
 
@@ -32,13 +32,11 @@ class TxViewDelegate : public QAbstractItemDelegate
 {
     Q_OBJECT
 public:
-    TxViewDelegate(): QAbstractItemDelegate(), unit(BitcoinUnits::ESP)
+    TxViewDelegate() : QAbstractItemDelegate(), unit(BitcoinUnits::ESP)
     {
-
     }
 
-    inline void paint(QPainter *painter, const QStyleOptionViewItem &option,
-                      const QModelIndex &index ) const
+    inline void paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const
     {
         painter->save();
 
@@ -47,9 +45,9 @@ public:
         QRect decorationRect(mainRect.topLeft(), QSize(DECORATION_SIZE, DECORATION_SIZE));
         int xspace = DECORATION_SIZE + 8;
         int ypad = 6;
-        int halfheight = (mainRect.height() - 2*ypad)/2;
-        QRect amountRect(mainRect.left() + xspace, mainRect.top()+ypad, mainRect.width() - xspace, halfheight);
-        QRect addressRect(mainRect.left() + xspace, mainRect.top()+ypad+halfheight, mainRect.width() - xspace, halfheight);
+        int halfheight = (mainRect.height() - 2 * ypad) / 2;
+        QRect amountRect(mainRect.left() + xspace, mainRect.top() + ypad, mainRect.width() - xspace, halfheight);
+        QRect addressRect(mainRect.left() + xspace, mainRect.top() + ypad + halfheight, mainRect.width() - xspace, halfheight);
         icon.paint(painter, decorationRect);
 
         QDateTime date = index.data(TransactionTableModel::DateRole).toDateTime();
@@ -59,64 +57,56 @@ public:
         QVariant value = index.data(Qt::ForegroundRole);
         QColor foreground = option.palette.color(QPalette::Text);
 #if QT_VERSION < 0x050000
-        if(qVariantCanConvert<QColor>(value))
+        if (qVariantCanConvert<QColor>(value))
 #else
-        if(value.canConvert(QMetaType::QColor))
+        if (value.canConvert(QMetaType::QColor))
 #endif
         {
             foreground = qvariant_cast<QColor>(value);
         }
 
         painter->setPen(foreground);
-        painter->drawText(addressRect, Qt::AlignLeft|Qt::AlignVCenter, address);
+        painter->drawText(addressRect, Qt::AlignLeft | Qt::AlignVCenter, address);
 
-        if(amount < 0)
-        {
+        if (amount < 0) {
             foreground = COLOR_NEGATIVE;
-        }
-        else if(!confirmed)
-        {
+        } else if (!confirmed) {
             foreground = COLOR_UNCONFIRMED;
-        }
-        else
-        {
+        } else {
             foreground = option.palette.color(QPalette::Text);
         }
         painter->setPen(foreground);
         QString amountText = BitcoinUnits::formatWithUnit(unit, amount, true);
-        if(!confirmed)
-        {
+        if (!confirmed) {
             amountText = QString("[") + amountText + QString("]");
         }
-        painter->drawText(amountRect, Qt::AlignRight|Qt::AlignVCenter, amountText);
+        painter->drawText(amountRect, Qt::AlignRight | Qt::AlignVCenter, amountText);
 
         painter->setPen(option.palette.color(QPalette::Text));
-        painter->drawText(amountRect, Qt::AlignLeft|Qt::AlignVCenter, GUIUtil::dateTimeStr(date));
+        painter->drawText(amountRect, Qt::AlignLeft | Qt::AlignVCenter, GUIUtil::dateTimeStr(date));
 
         painter->restore();
     }
 
-    inline QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const
+    inline QSize sizeHint(const QStyleOptionViewItem& option, const QModelIndex& index) const
     {
         return QSize(DECORATION_SIZE, DECORATION_SIZE);
     }
 
     int unit;
-
 };
 #include "overviewpage.moc"
 
-OverviewPage::OverviewPage(QWidget *parent) :
-    QWidget(parent),
-    ui(new Ui::OverviewPage),
-    clientModel(0),
-    walletModel(0),
-    currentBalance(-1),
-    currentStake(0),
-    currentUnconfirmedBalance(-1),
-    currentImmatureBalance(-1),
-    txdelegate(new TxViewDelegate()),
-    filter(0)
+OverviewPage::OverviewPage(QWidget* parent) : QWidget(parent),
+                                              ui(new Ui::OverviewPage),
+                                              clientModel(0),
+                                              walletModel(0),
+                                              currentBalance(-1),
+                                              currentStake(0),
+                                              currentUnconfirmedBalance(-1),
+                                              currentImmatureBalance(-1),
+                                              txdelegate(new TxViewDelegate()),
+                                              filter(0)
 {
     ui->setupUi(this);
 
@@ -137,9 +127,9 @@ OverviewPage::OverviewPage(QWidget *parent) :
     showOutOfSyncWarning(true);
 }
 
-void OverviewPage::handleTransactionClicked(const QModelIndex &index)
+void OverviewPage::handleTransactionClicked(const QModelIndex& index)
 {
-    if(filter)
+    if (filter)
         emit transactionClicked(filter->mapToSource(index));
 }
 
@@ -168,7 +158,7 @@ void OverviewPage::setBalance(qint64 balance, qint64 stake, qint64 unconfirmedBa
     ui->labelImmatureText->setVisible(showImmature);
 }
 
-void OverviewPage::setClientModel(ClientModel *model)
+void OverviewPage::setClientModel(ClientModel* model)
 {
     this->clientModel = model;
 
@@ -179,11 +169,10 @@ void OverviewPage::setClientModel(ClientModel *model)
     connect(model, SIGNAL(numBlocksChanged(int)), this, SLOT(setCntBlocks(int)));
 }
 
-void OverviewPage::setWalletModel(WalletModel *model)
+void OverviewPage::setWalletModel(WalletModel* model)
 {
     this->walletModel = model;
-    if(model && model->getOptionsModel())
-    {
+    if (model && model->getOptionsModel()) {
         // Set up transaction list
         filter = new TransactionFilterProxy();
         filter->setSourceModel(model->getTransactionTableModel());
@@ -209,9 +198,8 @@ void OverviewPage::setWalletModel(WalletModel *model)
 
 void OverviewPage::updateDisplayUnit()
 {
-    if(walletModel && walletModel->getOptionsModel())
-    {
-        if(currentBalance != -1)
+    if (walletModel && walletModel->getOptionsModel()) {
+        if (currentBalance != -1)
             setBalance(currentBalance, walletModel->getStake(), currentUnconfirmedBalance, currentImmatureBalance);
 
         // Update txdelegate->unit with the current unit
@@ -235,7 +223,9 @@ void OverviewPage::showOutOfSyncWarning(bool fShow)
 
 std::string getPoSHash(int Height)
 {
-    if(Height < 0) { return "351c6703813172725c6d660aa539ee6a3d7a9fe784c87fae7f36582e3b797058"; }
+    if (Height < 0) {
+        return "351c6703813172725c6d660aa539ee6a3d7a9fe784c87fae7f36582e3b797058";
+    }
     int desiredheight;
     desiredheight = Height;
     if (desiredheight < 0 || desiredheight > nBestHeight)
@@ -258,19 +248,16 @@ double getPoSHardness(int height)
     double dDiff =
         (double)0x0000ffff / (double)(blockindex->nBits & 0x00ffffff);
 
-    while (nShift < 29)
-    {
+    while (nShift < 29) {
         dDiff *= 256.0;
         nShift++;
     }
-    while (nShift > 29)
-    {
+    while (nShift > 29) {
         dDiff /= 256.0;
         nShift--;
     }
 
     return dDiff;
-
 }
 
 const CBlockIndex* getPoSIndex(int height)
@@ -302,10 +289,8 @@ int PoSInPastHours(int hours)
     int utime = (int)time(NULL);
     int target = utime - wayback;
 
-    while(check)
-    {
-        if(getPoSTime(heightHour) < target)
-        {
+    while (check) {
+        if (getPoSTime(heightHour) < target) {
             check = false;
             return height - heightHour;
         } else {
@@ -323,8 +308,7 @@ double convertPoSCoins(int64_t amount)
 
 void OverviewPage::updatePoSstat(bool stat)
 {
-    if(stat)
-    {
+    if (stat) {
         uint64_t nWeight = 0;
         if (pwalletMain)
             nWeight = pwalletMain->GetStakeWeight();
@@ -332,20 +316,15 @@ void OverviewPage::updatePoSstat(bool stat)
         bool staking = nLastCoinStakeSearchInterval && nWeight;
         uint64_t nExpectedTime = staking ? (Params().TargetSpacing() * nNetworkWeight / nWeight) : 0;
         QString Qseconds = " Second(s)";
-        if(nExpectedTime > 86399)
-        {
-           nExpectedTime = nExpectedTime / 60 / 60 / 24;
-           Qseconds = " Day(s)";
-        }
-        else if(nExpectedTime > 3599)
-        {
-           nExpectedTime = nExpectedTime / 60 / 60;
-           Qseconds = " Hour(s)";
-        }
-        else if(nExpectedTime > 59)
-        {
-           nExpectedTime = nExpectedTime / 60;
-           Qseconds = " Minute(s)";
+        if (nExpectedTime > 86399) {
+            nExpectedTime = nExpectedTime / 60 / 60 / 24;
+            Qseconds = " Day(s)";
+        } else if (nExpectedTime > 3599) {
+            nExpectedTime = nExpectedTime / 60 / 60;
+            Qseconds = " Hour(s)";
+        } else if (nExpectedTime > 59) {
+            nExpectedTime = nExpectedTime / 60;
+            Qseconds = " Minute(s)";
         }
         ui->lbTime->show();
 
@@ -354,8 +333,7 @@ void OverviewPage::updatePoSstat(bool stat)
         // Net weight percentage
         double nStakePercentage = (double)nWeight / (double)nNetworkWeight * 100;
         double nNetPercentage = (100 - (double)nStakePercentage);
-        if(nWeight > nNetworkWeight)
-        {
+        if (nWeight > nNetworkWeight) {
             nStakePercentage = (double)nNetworkWeight / (double)nWeight * 100;
             nNetPercentage = (100 - (double)nStakePercentage);
         }
@@ -380,22 +358,18 @@ void OverviewPage::updatePoSstat(bool stat)
         ui->stkstat->setText(QStakeEN);
         ui->lbHeight->setText(QBlockHeight);
         ui->clStat->setText("<font color=\"red\">" + QFailed + "</font>");
-        if(nExpectedTime == 0)
-        {
+        if (nExpectedTime == 0) {
             QExpect = "Not Staking";
             ui->estnxt->setText(QExpect);
         }
-        if(staking)
-        {
+        if (staking) {
             QStakeEN = "Staking";
             ui->stkstat->setText(QStakeEN);
         }
-        if(GetBoolArg("-staking", true))
-        {
+        if (GetBoolArg("-staking", true)) {
             QStaking = "Enabled";
         }
-        if((GetTime() - pindexBest->GetBlockTime()) < 45 * 60)
-        {
+        if ((GetTime() - pindexBest->GetBlockTime()) < 45 * 60) {
             QSyncPercentage = "100";
             nSyncPercentage = 100;
         }
@@ -404,11 +378,10 @@ void OverviewPage::updatePoSstat(bool stat)
         ui->urweight_2->setText(QStakePercentage + "%");
         ui->netweight_2->setText(QNetPercentage + "%");
         ui->sncStatus->setText(QSyncPercentage + "%");
-        if(nSyncPercentage == 100)
+        if (nSyncPercentage == 100)
             ui->clStat->setText("<font color=\"green\">" + QSynced + "</font>");
-        if(nSyncPercentage != 100)
-        {
-            if(clientModel->getNumConnections() > 0)
+        if (nSyncPercentage != 100) {
+            if (clientModel->getNumConnections() > 0)
                 ui->clStat->setText("<font color=\"orange\">" + QSyncing + "</font>");
         }
         return;
@@ -419,7 +392,7 @@ void OverviewPage::setCntBlocks(int pseudo)
 {
     pseudo = pindexBest->GetBlockTime();
 
-    if(pseudo > Params().GenesisBlock().GetBlockTime())
+    if (pseudo > Params().GenesisBlock().GetBlockTime())
         updatePoSstat(true);
 
     return;

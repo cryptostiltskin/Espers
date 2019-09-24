@@ -6,10 +6,10 @@
 #ifndef RPCVELOCITY_H
 #define RPCVELOCITY_H 1
 
-#include "json/json_spirit_reader_template.h"
-#include "json/json_spirit_writer_template.h"
-#include "json/json_spirit_utils.h"
 #include "consensus/velocity.h"
+#include "json/json_spirit_reader_template.h"
+#include "json/json_spirit_utils.h"
+#include "json/json_spirit_writer_template.h"
 
 extern json_spirit::Value getvelocityinfo(const json_spirit::Array& params, bool fHelp);
 

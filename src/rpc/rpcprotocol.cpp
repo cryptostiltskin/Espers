@@ -9,6 +9,7 @@
 
 #include <stdint.h>
 
+#include "json/json_spirit_writer_template.h"
 #include <boost/algorithm/string.hpp>
 #include <boost/asio.hpp>
 #include <boost/asio/ssl.hpp>
@@ -19,7 +20,6 @@
 #include <boost/iostreams/stream.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/shared_ptr.hpp>
-#include "json/json_spirit_writer_template.h"
 
 using namespace std;
 using namespace boost;
@@ -33,7 +33,7 @@ using namespace json_spirit;
 // and to be compatible with other JSON-RPC implementations.
 //
 
-string HTTPPost(const string& strMsg, const map<string,string>& mapRequestHeaders)
+string HTTPPost(const string& strMsg, const map<string, string>& mapRequestHeaders)
 {
     ostringstream s;
     s << "POST / HTTP/1.1\r\n"
@@ -43,9 +43,10 @@ string HTTPPost(const string& strMsg, const map<string,string>& mapRequestHeader
       << "Content-Length: " << strMsg.size() << "\r\n"
       << "Connection: close\r\n"
       << "Accept: application/json\r\n";
-    BOOST_FOREACH(const PAIRTYPE(string, string)& item, mapRequestHeaders)
+    BOOST_FOREACH (const PAIRTYPE(string, string) & item, mapRequestHeaders)
         s << item.first << ": " << item.second << "\r\n";
-    s << "\r\n" << strMsg;
+    s << "\r\n"
+      << strMsg;
 
     return s.str();
 }
@@ -59,37 +60,44 @@ string HTTPReply(int nStatus, const string& strMsg, bool keepalive)
 {
     if (nStatus == HTTP_UNAUTHORIZED)
         return strprintf("HTTP/1.0 401 Authorization Required\r\n"
-            "Date: %s\r\n"
-            "Server: Espers-json-rpc/%s\r\n"
-            "WWW-Authenticate: Basic realm=\"jsonrpc\"\r\n"
-            "Content-Type: text/html\r\n"
-            "Content-Length: 296\r\n"
-            "\r\n"
-            "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\"\r\n"
-            "\"http://www.w3.org/TR/1999/REC-html401-19991224/loose.dtd\">\r\n"
-            "<HTML>\r\n"
-            "<HEAD>\r\n"
-            "<TITLE>Error</TITLE>\r\n"
-            "<META HTTP-EQUIV='Content-Type' CONTENT='text/html; charset=ISO-8859-1'>\r\n"
-            "</HEAD>\r\n"
-            "<BODY><H1>401 Unauthorized.</H1></BODY>\r\n"
-            "</HTML>\r\n", rfc1123Time(), FormatFullVersion());
-    const char *cStatus;
-         if (nStatus == HTTP_OK) cStatus = "OK";
-    else if (nStatus == HTTP_BAD_REQUEST) cStatus = "Bad Request";
-    else if (nStatus == HTTP_FORBIDDEN) cStatus = "Forbidden";
-    else if (nStatus == HTTP_NOT_FOUND) cStatus = "Not Found";
-    else if (nStatus == HTTP_INTERNAL_SERVER_ERROR) cStatus = "Internal Server Error";
-    else cStatus = "";
+                         "Date: %s\r\n"
+                         "Server: Espers-json-rpc/%s\r\n"
+                         "WWW-Authenticate: Basic realm=\"jsonrpc\"\r\n"
+                         "Content-Type: text/html\r\n"
+                         "Content-Length: 296\r\n"
+                         "\r\n"
+                         "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\"\r\n"
+                         "\"http://www.w3.org/TR/1999/REC-html401-19991224/loose.dtd\">\r\n"
+                         "<HTML>\r\n"
+                         "<HEAD>\r\n"
+                         "<TITLE>Error</TITLE>\r\n"
+                         "<META HTTP-EQUIV='Content-Type' CONTENT='text/html; charset=ISO-8859-1'>\r\n"
+                         "</HEAD>\r\n"
+                         "<BODY><H1>401 Unauthorized.</H1></BODY>\r\n"
+                         "</HTML>\r\n",
+            rfc1123Time(), FormatFullVersion());
+    const char* cStatus;
+    if (nStatus == HTTP_OK)
+        cStatus = "OK";
+    else if (nStatus == HTTP_BAD_REQUEST)
+        cStatus = "Bad Request";
+    else if (nStatus == HTTP_FORBIDDEN)
+        cStatus = "Forbidden";
+    else if (nStatus == HTTP_NOT_FOUND)
+        cStatus = "Not Found";
+    else if (nStatus == HTTP_INTERNAL_SERVER_ERROR)
+        cStatus = "Internal Server Error";
+    else
+        cStatus = "";
     return strprintf(
-            "HTTP/1.1 %d %s\r\n"
-            "Date: %s\r\n"
-            "Connection: %s\r\n"
-            "Content-Length: %u\r\n"
-            "Content-Type: application/json\r\n"
-            "Server: Espers-json-rpc/%s\r\n"
-            "\r\n"
-            "%s",
+        "HTTP/1.1 %d %s\r\n"
+        "Date: %s\r\n"
+        "Connection: %s\r\n"
+        "Content-Length: %u\r\n"
+        "Content-Type: application/json\r\n"
+        "Server: Espers-json-rpc/%s\r\n"
+        "\r\n"
+        "%s",
         nStatus,
         cStatus,
         rfc1123Time(),
@@ -99,8 +107,7 @@ string HTTPReply(int nStatus, const string& strMsg, bool keepalive)
         strMsg);
 }
 
-bool ReadHTTPRequestLine(std::basic_istream<char>& stream, int &proto,
-                         string& http_method, string& http_uri)
+bool ReadHTTPRequestLine(std::basic_istream<char>& stream, int& proto, string& http_method, string& http_uri)
 {
     string str;
     getline(stream, str);
@@ -127,14 +134,14 @@ bool ReadHTTPRequestLine(std::basic_istream<char>& stream, int &proto,
         strProto = vWords[2];
 
     proto = 0;
-    const char *ver = strstr(strProto.c_str(), "HTTP/1.");
+    const char* ver = strstr(strProto.c_str(), "HTTP/1.");
     if (ver != NULL)
-        proto = atoi(ver+7);
+        proto = atoi(ver + 7);
 
     return true;
 }
 
-int ReadHTTPStatus(std::basic_istream<char>& stream, int &proto)
+int ReadHTTPStatus(std::basic_istream<char>& stream, int& proto)
 {
     string str;
     getline(stream, str);
@@ -143,28 +150,26 @@ int ReadHTTPStatus(std::basic_istream<char>& stream, int &proto)
     if (vWords.size() < 2)
         return HTTP_INTERNAL_SERVER_ERROR;
     proto = 0;
-    const char *ver = strstr(str.c_str(), "HTTP/1.");
+    const char* ver = strstr(str.c_str(), "HTTP/1.");
     if (ver != NULL)
-        proto = atoi(ver+7);
+        proto = atoi(ver + 7);
     return atoi(vWords[1].c_str());
 }
 
 int ReadHTTPHeaders(std::basic_istream<char>& stream, map<string, string>& mapHeadersRet)
 {
     int nLen = 0;
-    while (true)
-    {
+    while (true) {
         string str;
         std::getline(stream, str);
         if (str.empty() || str == "\r")
             break;
         string::size_type nColon = str.find(":");
-        if (nColon != string::npos)
-        {
+        if (nColon != string::npos) {
             string strHeader = str.substr(0, nColon);
             boost::trim(strHeader);
             boost::to_lower(strHeader);
-            string strValue = str.substr(nColon+1);
+            string strValue = str.substr(nColon + 1);
             boost::trim(strValue);
             mapHeadersRet[strHeader] = strValue;
             if (strHeader == "content-length")
@@ -175,9 +180,7 @@ int ReadHTTPHeaders(std::basic_istream<char>& stream, map<string, string>& mapHe
 }
 
 
-int ReadHTTPMessage(std::basic_istream<char>& stream, map<string,
-                    string>& mapHeadersRet, string& strMessageRet,
-                    int nProto)
+int ReadHTTPMessage(std::basic_istream<char>& stream, map<string, string>& mapHeadersRet, string& strMessageRet, int nProto)
 {
     mapHeadersRet.clear();
     strMessageRet = "";
@@ -188,8 +191,7 @@ int ReadHTTPMessage(std::basic_istream<char>& stream, map<string,
         return HTTP_INTERNAL_SERVER_ERROR;
 
     // Read message
-    if (nLen > 0)
-    {
+    if (nLen > 0) {
         vector<char> vch(nLen);
         stream.read(&vch[0], nLen);
         strMessageRet = string(vch.begin(), vch.end());
@@ -197,8 +199,7 @@ int ReadHTTPMessage(std::basic_istream<char>& stream, map<string,
 
     string sConHdr = mapHeadersRet["connection"];
 
-    if ((sConHdr != "close") && (sConHdr != "keep-alive"))
-    {
+    if ((sConHdr != "close") && (sConHdr != "keep-alive")) {
         if (nProto >= 1)
             mapHeadersRet["connection"] = "keep-alive";
         else

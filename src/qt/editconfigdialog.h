@@ -4,7 +4,7 @@
 #include <QDialog>
 
 namespace Ui {
-    class EditConfigDialog;
+class EditConfigDialog;
 }
 class ClientModel;
 
@@ -14,13 +14,14 @@ class EditConfigDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit EditConfigDialog(QWidget *parent = 0);
+    explicit EditConfigDialog(QWidget* parent = 0);
     ~EditConfigDialog();
 
-    void setModel(ClientModel *model);
+    void setModel(ClientModel* model);
+
 private:
-    Ui::EditConfigDialog *ui;
-    ClientModel *model;
+    Ui::EditConfigDialog* ui;
+    ClientModel* model;
 
 public slots:
     void accept();

@@ -5,14 +5,14 @@
 #include "blockparams.h"
 #include "chainparams.h"
 #include "consensus/checkpoints.h"
-#include "database/db.h"
 #include "consensus/fork.h"
-#include "util/init.h"
 #include "consensus/kernel.h"
-#include "node/net.h"
-#include "database/txdb.h"
 #include "consensus/velocity.h"
+#include "database/db.h"
+#include "database/txdb.h"
 #include "main.h"
+#include "node/net.h"
+#include "util/init.h"
 
 using namespace std;
 using namespace boost;
@@ -75,7 +75,7 @@ const CBlockIndex* BlockVelocityType = 0;
 CBigNum bnVelocity = 0;
 CBigNum bnOld;
 CBigNum bnNew;
-std::string difType ("");
+std::string difType("");
 unsigned int retarget = DIFF_VRX; // Default with VRX
 
 
@@ -91,26 +91,34 @@ unsigned int retarget = DIFF_VRX; // Default with VRX
 void VRXswngdebug()
 {
     // Print for debugging
-    LogPrintf("Previously discovered %s block: %u: \n",difType.c_str(),prvTime);
-    LogPrintf("Current block-time: %u: \n",difType.c_str(),cntTime);
-    LogPrintf("Time since last %s block: %u: \n",difType.c_str(),difTime);
+    LogPrintf("Previously discovered %s block: %u: \n", difType.c_str(), prvTime);
+    LogPrintf("Current block-time: %u: \n", difType.c_str(), cntTime);
+    LogPrintf("Time since last %s block: %u: \n", difType.c_str(), difTime);
     // Handle updated versions as well as legacy
-    if(GetTime() > 9993058800) {
+    if (GetTime() > 9993058800) {
         debugHourRounds = hourRounds;
         debugTerminalAverage = TerminalAverage;
         debugDifCurve = difCurve;
-        while(difTime > (debugHourRounds * 60 * 60)) {
+        while (difTime > (debugHourRounds * 60 * 60)) {
             debugTerminalAverage /= debugDifCurve;
-            LogPrintf("diffTime%s is greater than %u Hours: %u \n",difType.c_str(),debugHourRounds,cntTime);
-            LogPrintf("Difficulty will be multiplied by: %d \n",debugTerminalAverage);
-            debugDifCurve ++;
-            debugHourRounds ++;
+            LogPrintf("diffTime%s is greater than %u Hours: %u \n", difType.c_str(), debugHourRounds, cntTime);
+            LogPrintf("Difficulty will be multiplied by: %d \n", debugTerminalAverage);
+            debugDifCurve++;
+            debugHourRounds++;
         }
     } else {
-        if(difTime > (hourRounds+0) * 60 * 60) {LogPrintf("diffTime%s is greater than 1 Hours: %u \n",difType.c_str(),cntTime);}
-        if(difTime > (hourRounds+1) * 60 * 60) {LogPrintf("diffTime%s is greater than 2 Hours: %u \n",difType.c_str(),cntTime);}
-        if(difTime > (hourRounds+2) * 60 * 60) {LogPrintf("diffTime%s is greater than 3 Hours: %u \n",difType.c_str(),cntTime);}
-        if(difTime > (hourRounds+3) * 60 * 60) {LogPrintf("diffTime%s is greater than 4 Hours: %u \n",difType.c_str(),cntTime);}
+        if (difTime > (hourRounds + 0) * 60 * 60) {
+            LogPrintf("diffTime%s is greater than 1 Hours: %u \n", difType.c_str(), cntTime);
+        }
+        if (difTime > (hourRounds + 1) * 60 * 60) {
+            LogPrintf("diffTime%s is greater than 2 Hours: %u \n", difType.c_str(), cntTime);
+        }
+        if (difTime > (hourRounds + 2) * 60 * 60) {
+            LogPrintf("diffTime%s is greater than 3 Hours: %u \n", difType.c_str(), cntTime);
+        }
+        if (difTime > (hourRounds + 3) * 60 * 60) {
+            LogPrintf("diffTime%s is greater than 4 Hours: %u \n", difType.c_str(), cntTime);
+        }
     }
     return;
 }
@@ -118,19 +126,19 @@ void VRXswngdebug()
 void VRXdebug()
 {
     // Print for debugging
-    LogPrintf("Terminal-Velocity 1st spacing: %u: \n",VLrate1);
-    LogPrintf("Terminal-Velocity 2nd spacing: %u: \n",VLrate2);
-    LogPrintf("Terminal-Velocity 3rd spacing: %u: \n",VLrate3);
-    LogPrintf("Terminal-Velocity 4th spacing: %u: \n",VLrate4);
-    LogPrintf("Terminal-Velocity 5th spacing: %u: \n",VLrate5);
-    LogPrintf("Desired normal spacing: %u: \n",DSrateNRM);
-    LogPrintf("Desired maximum spacing: %u: \n",DSrateMAX);
-    LogPrintf("Terminal-Velocity 1st multiplier set to: %f: \n",VLF1);
-    LogPrintf("Terminal-Velocity 2nd multiplier set to: %f: \n",VLF2);
-    LogPrintf("Terminal-Velocity 3rd multiplier set to: %f: \n",VLF3);
-    LogPrintf("Terminal-Velocity 4th multiplier set to: %f: \n",VLF4);
-    LogPrintf("Terminal-Velocity 5th multiplier set to: %f: \n",VLF5);
-    LogPrintf("Terminal-Velocity averaged a final multiplier of: %f: \n",TerminalAverage);
+    LogPrintf("Terminal-Velocity 1st spacing: %u: \n", VLrate1);
+    LogPrintf("Terminal-Velocity 2nd spacing: %u: \n", VLrate2);
+    LogPrintf("Terminal-Velocity 3rd spacing: %u: \n", VLrate3);
+    LogPrintf("Terminal-Velocity 4th spacing: %u: \n", VLrate4);
+    LogPrintf("Terminal-Velocity 5th spacing: %u: \n", VLrate5);
+    LogPrintf("Desired normal spacing: %u: \n", DSrateNRM);
+    LogPrintf("Desired maximum spacing: %u: \n", DSrateMAX);
+    LogPrintf("Terminal-Velocity 1st multiplier set to: %f: \n", VLF1);
+    LogPrintf("Terminal-Velocity 2nd multiplier set to: %f: \n", VLF2);
+    LogPrintf("Terminal-Velocity 3rd multiplier set to: %f: \n", VLF3);
+    LogPrintf("Terminal-Velocity 4th multiplier set to: %f: \n", VLF4);
+    LogPrintf("Terminal-Velocity 5th multiplier set to: %f: \n", VLF5);
+    LogPrintf("Terminal-Velocity averaged a final multiplier of: %f: \n", TerminalAverage);
     LogPrintf("Prior Terminal-Velocity: %u\n", oldBN);
     LogPrintf("New Terminal-Velocity:  %u\n", newBN);
     return;
@@ -140,16 +148,14 @@ void GNTdebug()
 {
     // Print for debugging
     // Retarget using DGW-v3
-    if (retarget == DIFF_DGW)
-    {
+    if (retarget == DIFF_DGW) {
         // debug info for testing
         LogPrintf("DarkGravityWave-v3 retarget selected \n");
         LogPrintf("Espers retargetted using: DGW-v3 difficulty algo \n");
         return;
     }
     // Retarget using PPC
-    else if (retarget == DIFF_PPC)
-    {
+    else if (retarget == DIFF_PPC) {
         // debug info for testing
         LogPrintf("PPC per-block retarget selected \n");
         LogPrintf("Espers retargetted using: PPC difficulty algo \n");
@@ -206,75 +212,80 @@ unsigned int PeercoinDiff(const CBlockIndex* pindexLast, bool fProofOfStake)
 
 unsigned int DarkGravityWave(const CBlockIndex* pindexLast, bool fProofOfStake)
 {
-        // DarkGravityWave v3.1, written by Evan Duffield - evan@dashpay.io
-        // Modified & revised by bitbandi for PoW support [implementation (fork) cleanup done by CryptoCoderz]
-        const CBigNum nProofOfWorkLimit = fProofOfStake ? Params().ProofOfStakeLimit() : Params().ProofOfWorkLimit();
-        const CBlockIndex *BlockLastSolved = pindexLast;
-        const CBlockIndex *BlockLastSolved_lgf = GetLastBlockIndex(pindexLast, fProofOfStake);
-        const CBlockIndex *BlockReading = pindexLast;
+    // DarkGravityWave v3.1, written by Evan Duffield - evan@dashpay.io
+    // Modified & revised by bitbandi for PoW support [implementation (fork) cleanup done by CryptoCoderz]
+    const CBigNum nProofOfWorkLimit = fProofOfStake ? Params().ProofOfStakeLimit() : Params().ProofOfWorkLimit();
+    const CBlockIndex* BlockLastSolved = pindexLast;
+    const CBlockIndex* BlockLastSolved_lgf = GetLastBlockIndex(pindexLast, fProofOfStake);
+    const CBlockIndex* BlockReading = pindexLast;
+    // Low Gravity fix (PoW support)
+    if (pindexBest->nHeight > nlowGravity) {
+        BlockReading = BlockLastSolved_lgf;
+    }
+    int64_t nActualTimespan = 0;
+    int64_t LastBlockTime = 0;
+    int64_t PastBlocksMin = 7;
+    int64_t PastBlocksMax = 24;
+    int64_t CountBlocks = 0;
+    CBigNum PastDifficultyAverage;
+    CBigNum PastDifficultyAveragePrev;
+
+    if (BlockLastSolved == NULL || BlockLastSolved->nHeight == 0 || BlockLastSolved->nHeight < PastBlocksMax) {
+        return nProofOfWorkLimit.GetCompact();
+    }
+
+    for (unsigned int i = 1; BlockReading && BlockReading->nHeight > 0; i++) {
+        if (PastBlocksMax > 0 && i > PastBlocksMax) {
+            break;
+        }
+        CountBlocks++;
+
+        if (CountBlocks <= PastBlocksMin) {
+            if (CountBlocks == 1) {
+                PastDifficultyAverage.SetCompact(BlockReading->nBits);
+            } else {
+                PastDifficultyAverage = ((PastDifficultyAveragePrev * CountBlocks) + (CBigNum().SetCompact(BlockReading->nBits))) / (CountBlocks + 1);
+            }
+            PastDifficultyAveragePrev = PastDifficultyAverage;
+        }
+
+        if (LastBlockTime > 0) {
+            int64_t Diff = (LastBlockTime - BlockReading->GetBlockTime());
+            nActualTimespan += Diff;
+        }
+        LastBlockTime = BlockReading->GetBlockTime();
+        // Low Gravity chain support (Pre-fix)
+        if (pindexBest->nHeight <= nlowGravity) {
+            if (BlockReading->pprev == NULL) {
+                assert(BlockReading);
+                break;
+            }
+            BlockReading = BlockReading->pprev;
+        }
         // Low Gravity fix (PoW support)
-        if(pindexBest->nHeight > nlowGravity)
-        {
-            BlockReading = BlockLastSolved_lgf;
+        else if (pindexBest->nHeight > nlowGravity) {
+            BlockReading = GetLastBlockIndex(BlockReading->pprev, fProofOfStake);
         }
-        int64_t nActualTimespan = 0;
-        int64_t LastBlockTime = 0;
-        int64_t PastBlocksMin = 7;
-        int64_t PastBlocksMax = 24;
-        int64_t CountBlocks = 0;
-        CBigNum PastDifficultyAverage;
-        CBigNum PastDifficultyAveragePrev;
+    }
 
-        if (BlockLastSolved == NULL || BlockLastSolved->nHeight == 0 || BlockLastSolved->nHeight < PastBlocksMax) {
-            return nProofOfWorkLimit.GetCompact();
-        }
+    CBigNum bnNew(PastDifficultyAverage);
 
-        for (unsigned int i = 1; BlockReading && BlockReading->nHeight > 0; i++) {
-            if (PastBlocksMax > 0 && i > PastBlocksMax) { break; }
-            CountBlocks++;
+    int64_t _nTargetTimespan = CountBlocks * Params().TargetSpacing();
 
-            if(CountBlocks <= PastBlocksMin) {
-                if (CountBlocks == 1) { PastDifficultyAverage.SetCompact(BlockReading->nBits); }
-                else { PastDifficultyAverage = ((PastDifficultyAveragePrev * CountBlocks) + (CBigNum().SetCompact(BlockReading->nBits))) / (CountBlocks + 1); }
-                PastDifficultyAveragePrev = PastDifficultyAverage;
-            }
+    if (nActualTimespan < _nTargetTimespan / 3)
+        nActualTimespan = _nTargetTimespan / 3;
+    if (nActualTimespan > _nTargetTimespan * 3)
+        nActualTimespan = _nTargetTimespan * 3;
 
-            if(LastBlockTime > 0){
-                int64_t Diff = (LastBlockTime - BlockReading->GetBlockTime());
-                nActualTimespan += Diff;
-            }
-            LastBlockTime = BlockReading->GetBlockTime();
-            // Low Gravity chain support (Pre-fix)
-            if(pindexBest->nHeight <= nlowGravity)
-            {
-                if (BlockReading->pprev == NULL) { assert(BlockReading); break; }
-                    BlockReading = BlockReading->pprev;
-            }
-            // Low Gravity fix (PoW support)
-            else if(pindexBest->nHeight > nlowGravity)
-            {
-                BlockReading = GetLastBlockIndex(BlockReading->pprev, fProofOfStake);
-            }
-        }
+    // Retarget
+    bnNew *= nActualTimespan;
+    bnNew /= _nTargetTimespan;
 
-        CBigNum bnNew(PastDifficultyAverage);
+    if (bnNew > nProofOfWorkLimit) {
+        bnNew = nProofOfWorkLimit;
+    }
 
-        int64_t _nTargetTimespan = CountBlocks * Params().TargetSpacing();
-
-        if (nActualTimespan < _nTargetTimespan/3)
-            nActualTimespan = _nTargetTimespan/3;
-        if (nActualTimespan > _nTargetTimespan*3)
-            nActualTimespan = _nTargetTimespan*3;
-
-        // Retarget
-        bnNew *= nActualTimespan;
-        bnNew /= _nTargetTimespan;
-
-        if (bnNew > nProofOfWorkLimit){
-            bnNew = nProofOfWorkLimit;
-        }
-
-        return bnNew.GetCompact();
+    return bnNew.GetCompact();
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -288,81 +299,108 @@ unsigned int DarkGravityWave(const CBlockIndex* pindexLast, bool fProofOfStake)
 // Terminal-Velocity-RateX, v10-Beta-R9, written by Jonathan Dan Zaretsky - cryptocoderz@gmail.com
 void VRX_BaseEngine(const CBlockIndex* pindexLast, bool fProofOfStake)
 {
-       // Set base values
-       VLF1 = 0;
-       VLF2 = 0;
-       VLF3 = 0;
-       VLF4 = 0;
-       VLF5 = 0;
-       VLFtmp = 0;
-       TerminalAverage = 0;
-       TerminalFactor = 10000;
-       VLrate1 = 0;
-       VLrate2 = 0;
-       VLrate3 = 0;
-       VLrate4 = 0;
-       VLrate5 = 0;
-       VLRtemp = 0;
-       difficultyfactor = 0;
-       scanblocks = 1;
-       scantime_1 = 0;
-       scantime_2 = pindexLast->GetBlockTime();
-       prevPoW = 0; // hybrid value
-       prevPoS = 0; // hybrid value
-       // Set prev blocks...
-       pindexPrev = pindexLast;
-       // ...and deduce spacing
-       while(scanblocks < scanheight)
-       {
-           scantime_1 = scantime_2;
-           pindexPrev = pindexPrev->pprev;
-           scantime_2 = pindexPrev->GetBlockTime();
-           // Set standard values
-           if(scanblocks > 0){
-               if     (scanblocks < scanheight-4){ VLrate1 = (scantime_1 - scantime_2); VLRtemp = VLrate1; }
-               else if(scanblocks < scanheight-3){ VLrate2 = (scantime_1 - scantime_2); VLRtemp = VLrate2; }
-               else if(scanblocks < scanheight-2){ VLrate3 = (scantime_1 - scantime_2); VLRtemp = VLrate3; }
-               else if(scanblocks < scanheight-1){ VLrate4 = (scantime_1 - scantime_2); VLRtemp = VLrate4; }
-               else if(scanblocks < scanheight-0){ VLrate5 = (scantime_1 - scantime_2); VLRtemp = VLrate5; }
-           }
-           // Round factoring
-           if(VLRtemp >= DSrateNRM){ VLFtmp = VRFsm1;
-               if(VLRtemp > DSrateMAX){ VLFtmp = VRFdw1;
-                   if(VLRtemp > FRrateCLNG){ VLFtmp = VRFdw2; }
-               }
-           }
-           else if(VLRtemp < DSrateNRM){ VLFtmp = VRFup1;
-               if(VLRtemp < FRrateDWN){ VLFtmp = VRFup2;
-                   if(VLRtemp < FRrateFLR){ VLFtmp = VRFup3; }
-               }
-           }
-           // Record factoring
-           if      (scanblocks < scanheight-4) VLF1 = VLFtmp;
-           else if (scanblocks < scanheight-3) VLF2 = VLFtmp;
-           else if (scanblocks < scanheight-2) VLF3 = VLFtmp;
-           else if (scanblocks < scanheight-1) VLF4 = VLFtmp;
-           else if (scanblocks < scanheight-0) VLF5 = VLFtmp;
-           // Log hybrid block type
-           //
-           // v1.0
-           if(pindexBest->GetBlockTime() < SWING_PATCH) // ON (TOGGLED Nov/01/2017)
-           {
-                if     (fProofOfStake) prevPoS ++;
-                else if(!fProofOfStake) prevPoW ++;
-           }
-           // v1.1
-           if(pindexBest->GetBlockTime() > SWING_PATCH) // ON (TOGGLED Nov/01/2017)
-           {
-               if(pindexPrev->IsProofOfStake()) { prevPoS ++; }
-               else if(pindexPrev->IsProofOfWork()) { prevPoW ++; }
-           }
+    // Set base values
+    VLF1 = 0;
+    VLF2 = 0;
+    VLF3 = 0;
+    VLF4 = 0;
+    VLF5 = 0;
+    VLFtmp = 0;
+    TerminalAverage = 0;
+    TerminalFactor = 10000;
+    VLrate1 = 0;
+    VLrate2 = 0;
+    VLrate3 = 0;
+    VLrate4 = 0;
+    VLrate5 = 0;
+    VLRtemp = 0;
+    difficultyfactor = 0;
+    scanblocks = 1;
+    scantime_1 = 0;
+    scantime_2 = pindexLast->GetBlockTime();
+    prevPoW = 0; // hybrid value
+    prevPoS = 0; // hybrid value
+    // Set prev blocks...
+    pindexPrev = pindexLast;
+    // ...and deduce spacing
+    while (scanblocks < scanheight) {
+        scantime_1 = scantime_2;
+        pindexPrev = pindexPrev->pprev;
+        scantime_2 = pindexPrev->GetBlockTime();
+        // Set standard values
+        if (scanblocks > 0) {
+            if (scanblocks < scanheight - 4) {
+                VLrate1 = (scantime_1 - scantime_2);
+                VLRtemp = VLrate1;
+            } else if (scanblocks < scanheight - 3) {
+                VLrate2 = (scantime_1 - scantime_2);
+                VLRtemp = VLrate2;
+            } else if (scanblocks < scanheight - 2) {
+                VLrate3 = (scantime_1 - scantime_2);
+                VLRtemp = VLrate3;
+            } else if (scanblocks < scanheight - 1) {
+                VLrate4 = (scantime_1 - scantime_2);
+                VLRtemp = VLrate4;
+            } else if (scanblocks < scanheight - 0) {
+                VLrate5 = (scantime_1 - scantime_2);
+                VLRtemp = VLrate5;
+            }
+        }
+        // Round factoring
+        if (VLRtemp >= DSrateNRM) {
+            VLFtmp = VRFsm1;
+            if (VLRtemp > DSrateMAX) {
+                VLFtmp = VRFdw1;
+                if (VLRtemp > FRrateCLNG) {
+                    VLFtmp = VRFdw2;
+                }
+            }
+        } else if (VLRtemp < DSrateNRM) {
+            VLFtmp = VRFup1;
+            if (VLRtemp < FRrateDWN) {
+                VLFtmp = VRFup2;
+                if (VLRtemp < FRrateFLR) {
+                    VLFtmp = VRFup3;
+                }
+            }
+        }
+        // Record factoring
+        if (scanblocks < scanheight - 4)
+            VLF1 = VLFtmp;
+        else if (scanblocks < scanheight - 3)
+            VLF2 = VLFtmp;
+        else if (scanblocks < scanheight - 2)
+            VLF3 = VLFtmp;
+        else if (scanblocks < scanheight - 1)
+            VLF4 = VLFtmp;
+        else if (scanblocks < scanheight - 0)
+            VLF5 = VLFtmp;
+        // Log hybrid block type
+        //
+        // v1.0
+        if (pindexBest->GetBlockTime() < SWING_PATCH) // ON (TOGGLED Nov/01/2017)
+        {
+            if (fProofOfStake)
+                prevPoS++;
+            else if (!fProofOfStake)
+                prevPoW++;
+        }
+        // v1.1
+        if (pindexBest->GetBlockTime() > SWING_PATCH) // ON (TOGGLED Nov/01/2017)
+        {
+            if (pindexPrev->IsProofOfStake()) {
+                prevPoS++;
+            } else if (pindexPrev->IsProofOfWork()) {
+                prevPoW++;
+            }
+        }
 
-           // move up per scan round
-           scanblocks ++;
-       }
-       // Final mathematics
-       TerminalAverage = (VLF1 + VLF2 + VLF3 + VLF4 + VLF5) / AverageDivisor;
-       return;
+        // move up per scan round
+        scanblocks++;
+    }
+    // Final mathematics
+    TerminalAverage = (VLF1 + VLF2 + VLF3 + VLF4 + VLF5) / AverageDivisor;
+    return;
 }
 
 void VRX_Simulate_Retarget()
@@ -389,14 +427,20 @@ void VRX_ThreadCurve(const CBlockIndex* pindexLast, bool fProofOfStake)
 
     // Version 1.0
     //
-    int64_t nNow = nBestHeight; int64_t nThen = sysUpgrade_01; // Toggle skew system fork
-    if(nNow > nThen){if(prevPoW < prevPoS && !fProofOfStake){if((prevPoS-prevPoW) > 3) TerminalAverage /= 3;}
-    else if(prevPoW > prevPoS && fProofOfStake){if((prevPoW-prevPoS) > 3) TerminalAverage /= 3;}
-    if(TerminalAverage < 0.5) TerminalAverage = 0.5;} // limit skew to halving
+    int64_t nNow = nBestHeight;
+    int64_t nThen = sysUpgrade_01; // Toggle skew system fork
+    if (nNow > nThen) {
+        if (prevPoW < prevPoS && !fProofOfStake) {
+            if ((prevPoS - prevPoW) > 3) TerminalAverage /= 3;
+        } else if (prevPoW > prevPoS && fProofOfStake) {
+            if ((prevPoW - prevPoS) > 3) TerminalAverage /= 3;
+        }
+        if (TerminalAverage < 0.5) TerminalAverage = 0.5;
+    } // limit skew to halving
 
     // Version 1.1 curve-patch
     //
-    if(pindexBest->GetBlockTime() > SWING_PATCH) // ON (TOGGLED Nov/01/2017)
+    if (pindexBest->GetBlockTime() > SWING_PATCH) // ON (TOGGLED Nov/01/2017)
     {
         // Define time values
         cntTime = BlockVelocityType->GetBlockTime();
@@ -406,34 +450,42 @@ void VRX_ThreadCurve(const CBlockIndex* pindexLast, bool fProofOfStake)
         difCurve = 2;
 
         // Debug print toggle
-        if(fProofOfStake) {
+        if (fProofOfStake) {
             difType = "PoS";
         } else {
             difType = "PoW";
         }
-        if(fDebug) VRXswngdebug();
+        if (fDebug) VRXswngdebug();
 
         // Version 1.2 Extended Curve Run Upgrade
-        if(pindexLast->nHeight+1 >= nLiveForkToggle && nLiveForkToggle != 0) {
-            while(difTime > (hourRounds * 60 * 60)) {
+        if (pindexLast->nHeight + 1 >= nLiveForkToggle && nLiveForkToggle != 0) {
+            while (difTime > (hourRounds * 60 * 60)) {
                 // Drop difficulty per round
                 TerminalAverage /= difCurve;
                 // Simulate retarget for sanity
                 VRX_Simulate_Retarget();
                 // Break loop on nbit limit, otherwise time threshold will auto-break loop
-                if (bnNew > bnVelocity){
+                if (bnNew > bnVelocity) {
                     break;
                 }
                 // Increase Curve per round
-                difCurve ++;
+                difCurve++;
                 // Move up an hour per round
-                hourRounds ++;
+                hourRounds++;
             }
-        } else {// Version 1.1 Standard Curve Run
-            if(difTime > (hourRounds+0) * 60 * 60) { TerminalAverage /= difCurve; }
-            if(difTime > (hourRounds+1) * 60 * 60) { TerminalAverage /= difCurve; }
-            if(difTime > (hourRounds+2) * 60 * 60) { TerminalAverage /= difCurve; }
-            if(difTime > (hourRounds+3) * 60 * 60) { TerminalAverage /= difCurve; }
+        } else { // Version 1.1 Standard Curve Run
+            if (difTime > (hourRounds + 0) * 60 * 60) {
+                TerminalAverage /= difCurve;
+            }
+            if (difTime > (hourRounds + 1) * 60 * 60) {
+                TerminalAverage /= difCurve;
+            }
+            if (difTime > (hourRounds + 2) * 60 * 60) {
+                TerminalAverage /= difCurve;
+            }
+            if (difTime > (hourRounds + 3) * 60 * 60) {
+                TerminalAverage /= difCurve;
+            }
         }
     }
     return;
@@ -449,10 +501,9 @@ void VRX_Dry_Run(const CBlockIndex* pindexLast)
 
     // Check for stall
     // Depricated as of DEC/15/2017 until futher notice
-    if(nBestHeight < 729000) // ON -- TODO - ADJUST DATE!
+    if (nBestHeight < 729000) // ON -- TODO - ADJUST DATE!
     {
-        if(nBestHeight >= 704195)
-        {
+        if (nBestHeight >= 704195) {
             fDryRun = true;
             return; // diff reset
         }
@@ -473,7 +524,9 @@ unsigned int VRX_Retarget(const CBlockIndex* pindexLast, bool fProofOfStake)
 
     // Check for a dry run
     VRX_Dry_Run(pindexLast);
-    if(fDryRun) { return bnVelocity.GetCompact(); }
+    if (fDryRun) {
+        return bnVelocity.GetCompact();
+    }
 
     // Run VRX threadcurve
     VRX_ThreadCurve(pindexLast, fProofOfStake);
@@ -482,14 +535,16 @@ unsigned int VRX_Retarget(const CBlockIndex* pindexLast, bool fProofOfStake)
     VRX_Simulate_Retarget();
 
     // Limit
-    if (bnNew > bnVelocity) { bnNew = bnVelocity; }
+    if (bnNew > bnVelocity) {
+        bnNew = bnVelocity;
+    }
 
     // Final log
     oldBN = bnOld.GetCompact();
     newBN = bnNew.GetCompact();
 
     // Debug print toggle
-    if(fDebug) VRXdebug();
+    if (fDebug) VRXdebug();
 
     // Return difficulty
     return bnNew.GetCompact();
@@ -503,33 +558,29 @@ unsigned int VRX_Retarget(const CBlockIndex* pindexLast, bool fProofOfStake)
 unsigned int GetNextTargetRequired(const CBlockIndex* pindexLast, bool fProofOfStake)
 {
     /* DarkGravityWave v3 retarget difficulty runs until block 667350 */
-    if(pindexBest->nHeight < VELOCITY_TDIFF)
-    {
+    if (pindexBest->nHeight < VELOCITY_TDIFF) {
         retarget = DIFF_DGW;
     }
     /* Chain starts with Peercoin per-block restarget,
        PPC retarget difficulty runs for the initial 615k (thousand) blocks */
-    if(pindexBest->nHeight < nGravityFork)
-    {
+    if (pindexBest->nHeight < nGravityFork) {
         retarget = DIFF_PPC;
     }
     // Retarget using DGW-v3
-    if (retarget == DIFF_DGW)
-    {
+    if (retarget == DIFF_DGW) {
         // debug info for testing
-        if(fDebug) GNTdebug();
+        if (fDebug) GNTdebug();
         return DarkGravityWave(pindexLast, fProofOfStake);
     }
     // Retarget using PPC
-    else if (retarget == DIFF_PPC)
-    {
+    else if (retarget == DIFF_PPC) {
         // debug info for testing
-        if(fDebug) GNTdebug();
+        if (fDebug) GNTdebug();
         return PeercoinDiff(pindexLast, fProofOfStake);
     }
     // Retarget using Terminal-Velocity
     // debug info for testing
-    if(fDebug) GNTdebug();
+    if (fDebug) GNTdebug();
     return VRX_Retarget(pindexLast, fProofOfStake);
 }
 
@@ -545,22 +596,21 @@ int64_t GetProofOfWorkReward(int64_t nHeight, int64_t nFees)
 {
     int64_t nSubsidy = nBlockPoWReward;
     // Genesis block subsidy
-    if(nHeight == nGenesisHeight) {
-        return  nGenesisBlockReward;
+    if (nHeight == nGenesisHeight) {
+        return nGenesisBlockReward;
     }
     // Block Buffer
     else if (nHeight <= nReservePhaseStart) {
         nSubsidy = nBlockRewardBuffer;
     }
     // Reserved for Swap from Initial Espers Chain Launch
-    else if(nHeight > nReservePhaseStart) {
-        if(nHeight < nReservePhaseEnd){
-        nSubsidy = nBlockRewardReserve;
+    else if (nHeight > nReservePhaseStart) {
+        if (nHeight < nReservePhaseEnd) {
+            nSubsidy = nBlockRewardReserve;
         }
     }
     // hardCap v2.1
-    else if(pindexBest->nMoneySupply > MAX_SINGLE_TX)
-    {
+    else if (pindexBest->nMoneySupply > MAX_SINGLE_TX) {
         LogPrint("MINEOUT", "GetProofOfWorkReward(): create=%s nFees=%d\n", FormatMoney(nFees), nFees);
         return nFees;
     }
@@ -576,20 +626,19 @@ int64_t GetProofOfStakeReward(int64_t nCoinAge, int64_t nFees)
 {
     int64_t nSubsidy = nCoinAge * COIN_YEAR_REWARD * 33 / (365 * 33 + 8);
 
-    if(pindexBest->nHeight > nPoS1PhaseStart){
-    nSubsidy = nCoinAge * COIN_YEAR_REWARD4 * 33 / (365 * 33 + 8);
+    if (pindexBest->nHeight > nPoS1PhaseStart) {
+        nSubsidy = nCoinAge * COIN_YEAR_REWARD4 * 33 / (365 * 33 + 8);
     }
     // Previously nBestHeight
-    else if(pindexBest->nHeight > nPoS5PhaseStart){
-    nSubsidy = nCoinAge * COIN_YEAR_REWARD3 * 33 / (365 * 33 + 8);
+    else if (pindexBest->nHeight > nPoS5PhaseStart) {
+        nSubsidy = nCoinAge * COIN_YEAR_REWARD3 * 33 / (365 * 33 + 8);
     }
     // Previously nBestHeight
-    else if(pindexBest->nHeight > nPoS25PhaseStart){
-    nSubsidy = nCoinAge * COIN_YEAR_REWARD2 * 33 / (365 * 33 + 8);
+    else if (pindexBest->nHeight > nPoS25PhaseStart) {
+        nSubsidy = nCoinAge * COIN_YEAR_REWARD2 * 33 / (365 * 33 + 8);
     }
     // hardCap v2.1
-    else if(pindexBest->nMoneySupply > MAX_SINGLE_TX)
-    {
+    else if (pindexBest->nMoneySupply > MAX_SINGLE_TX) {
         LogPrint("MINEOUT", "GetProofOfStakeReward(): create=%s nFees=%d\n", FormatMoney(nFees), nFees);
         return nFees;
     }

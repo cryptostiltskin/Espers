@@ -5,16 +5,16 @@
 #include "ui_blockbrowser.h"
 
 #include "clientmodel.h"
-#include "walletmodel.h"
 #include "core/main.h"
 #include "core/wallet.h"
-#include "primitives/base58.h"
-#include "transactionrecord.h"
-#include "optionsmodel.h"
-#include "guiutil.h"
 #include "guiconstants.h"
-#include "util/init.h"
+#include "guiutil.h"
+#include "optionsmodel.h"
+#include "primitives/base58.h"
 #include "rpc/rpcserver.h"
+#include "transactionrecord.h"
+#include "util/init.h"
+#include "walletmodel.h"
 
 using namespace json_spirit;
 
@@ -27,9 +27,8 @@ using namespace json_spirit;
 #define DECORATION_SIZE 48
 #define NUM_ITEMS 10
 
-BlockBrowser::BlockBrowser(QWidget *parent) :
-    ui(new Ui::BlockBrowser),
-    model(0)
+BlockBrowser::BlockBrowser(QWidget* parent) : ui(new Ui::BlockBrowser),
+                                              model(0)
 {
     ui->setupUi(this);
 
@@ -66,13 +65,11 @@ double getBlockHardness(int height)
     double dDiff =
         (double)0x0000ffff / (double)(blockindex->nBits & 0x00ffffff);
 
-    while (nShift < 29)
-    {
+    while (nShift < 29) {
         dDiff *= 256.0;
         nShift++;
     }
-    while (nShift > 29)
-    {
+    while (nShift > 29) {
         dDiff /= 256.0;
         nShift--;
     }
@@ -99,8 +96,12 @@ const CBlockIndex* getBlockIndex(int height)
 
 std::string getBlockHash(int Height)
 {
-    if(Height > pindexBest->nHeight) { return "351c6703813172725c6d660aa539ee6a3d7a9fe784c87fae7f36582e3b797058"; }
-    if(Height < 0) { return "351c6703813172725c6d660aa539ee6a3d7a9fe784c87fae7f36582e3b797058"; }
+    if (Height > pindexBest->nHeight) {
+        return "351c6703813172725c6d660aa539ee6a3d7a9fe784c87fae7f36582e3b797058";
+    }
+    if (Height < 0) {
+        return "351c6703813172725c6d660aa539ee6a3d7a9fe784c87fae7f36582e3b797058";
+    }
     int desiredheight;
     desiredheight = Height;
     if (desiredheight < 0 || desiredheight > nBestHeight)
@@ -136,7 +137,7 @@ std::string getBlockMerkle(int Height)
 
     CBlock block;
     CBlockIndex* pblockindex = mapBlockIndex[hash];
-    return pblockindex->hashMerkleRoot.ToString().substr(0,10).c_str();
+    return pblockindex->hashMerkleRoot.ToString().substr(0, 10).c_str();
 }
 
 int getBlocknBits(int Height)
@@ -187,10 +188,8 @@ int blocksInPastHours(int hours)
     int utime = (int)time(NULL);
     int target = utime - wayback;
 
-    while(check)
-    {
-        if(getBlockTime(heightHour) < target)
-        {
+    while (check) {
+        if (getBlockTime(heightHour) < target) {
             check = false;
             return height - heightHour;
         } else {
@@ -216,8 +215,7 @@ double getTxTotalValue(std::string txid)
 
     double value = 0;
     double buffer = 0;
-    for (unsigned int i = 0; i < tx.vout.size(); i++)
-    {
+    for (unsigned int i = 0; i < tx.vout.size(); i++) {
         const CTxOut& txout = tx.vout[i];
 
         buffer = value + convertCoins(txout.nValue);
@@ -246,8 +244,7 @@ std::string getOutputs(std::string txid)
     ssTx << tx;
 
     std::string str = "";
-    for (unsigned int i = 0; i < tx.vout.size(); i++)
-    {
+    for (unsigned int i = 0; i < tx.vout.size(); i++) {
         const CTxOut& txout = tx.vout[i];
         CTxDestination source;
         ExtractDestination(txout.scriptPubKey, source);
@@ -279,15 +276,14 @@ std::string getInputs(std::string txid)
     ssTx << tx;
 
     std::string str = "";
-    for (unsigned int i = 0; i < tx.vin.size(); i++)
-    {
+    for (unsigned int i = 0; i < tx.vin.size(); i++) {
         uint256 hash;
         const CTxIn& vin = tx.vin[i];
         hash.SetHex(vin.prevout.hash.ToString());
         CTransaction wtxPrev;
         uint256 hashBlock = 0;
         if (!GetTransaction(hash, wtxPrev, hashBlock))
-             return "fail";
+            return "fail";
 
         CDataStream ssTx(SER_NETWORK, PROTOCOL_VERSION);
         ssTx << wtxPrev;
@@ -311,11 +307,9 @@ std::string getInputs(std::string txid)
 
 int64_t getInputValue(CTransaction tx, CScript target)
 {
-    for (unsigned int i = 0; i < tx.vin.size(); i++)
-    {
+    for (unsigned int i = 0; i < tx.vin.size(); i++) {
         const CTxOut& txout = tx.vout[i];
-        if(txout.scriptPubKey == target)
-        {
+        if (txout.scriptPubKey == target) {
             return txout.nValue;
         }
     }
@@ -338,8 +332,7 @@ double getTxFees(std::string txid)
 
     double value = 0;
     double buffer = 0;
-    for (unsigned int i = 0; i < tx.vout.size(); i++)
-    {
+    for (unsigned int i = 0; i < tx.vout.size(); i++) {
         const CTxOut& txout = tx.vout[i];
 
         buffer = value + convertCoins(txout.nValue);
@@ -348,15 +341,14 @@ double getTxFees(std::string txid)
 
     double value0 = 0;
     double buffer0 = 0;
-    for (unsigned int i = 0; i < tx.vin.size(); i++)
-    {
+    for (unsigned int i = 0; i < tx.vin.size(); i++) {
         uint256 hash0;
         const CTxIn& vin = tx.vin[i];
         hash0.SetHex(vin.prevout.hash.ToString());
         CTransaction wtxPrev;
         uint256 hashBlock0 = 0;
         if (!GetTransaction(hash0, wtxPrev, hashBlock0))
-             return 0;
+            return 0;
         CDataStream ssTx(SER_NETWORK, PROTOCOL_VERSION);
         ssTx << wtxPrev;
         const CScript target = wtxPrev.vout[vin.prevout.n].scriptPubKey;
@@ -369,8 +361,7 @@ double getTxFees(std::string txid)
 
 void BlockBrowser::updateExplorer(bool block)
 {
-    if(block)
-    {
+    if (block) {
         ui->heightLabel->show();
         ui->heightLabel_2->show();
         ui->hashLabel->show();
@@ -384,12 +375,12 @@ void BlockBrowser::updateExplorer(bool block)
         ui->timeLabel->show();
         ui->timeBox->show();
         ui->hardLabel->show();
-        ui->hardBox->show();;
+        ui->hardBox->show();
+        ;
         ui->pawLabel->show();
         ui->pawBox->show();
         int height = ui->heightBox->value();
-        if (height > pindexBest->nHeight)
-        {
+        if (height > pindexBest->nHeight) {
             ui->heightBox->setValue(pindexBest->nHeight);
             height = pindexBest->nHeight;
         }
@@ -420,7 +411,7 @@ void BlockBrowser::updateExplorer(bool block)
         ui->pawBox->setText(QPawrate + " KH/s");
     }
 
-    if(block == false) {
+    if (block == false) {
         ui->txID->show();
         ui->txLabel->show();
         ui->valueLabel->show();
@@ -469,31 +460,25 @@ void BlockBrowser::updateStatistics()
     double pPawrate2 = 0.000;
     int nHeight = pindexBest->nHeight;
     double nSubsidy = 5000;
-    if(pindexBest->nHeight < 365 && pindexBest->nHeight > 10)
-    {
+    if (pindexBest->nHeight < 365 && pindexBest->nHeight > 10) {
         nSubsidy = 50000000;
-    }
-    else if(pindexBest->nHeight < 11)
-    {
+    } else if (pindexBest->nHeight < 11) {
         nSubsidy = 0.1;
     }
     uint64_t nMinWeight = 0; //, nMaxWeight = 0, nWeight = 0
     //pwalletMain->GetStakeWeight(*pwalletMain, nMinWeight, nMaxWeight, nWeight);
     pwalletMain->GetStakeWeight();
     uint64_t nNetworkWeight = GetPoSKernelPS();
-    int64_t volume = ((pindexBest->nMoneySupply)/100000000);
+    int64_t volume = ((pindexBest->nMoneySupply) / 100000000);
     int peers = this->clientModel->getNumConnections();
     pPawrate2 = (double)pPawrate;
     QString height = QString::number(nHeight);
     QString stakemin = QString::number(nMinWeight);
     QString stakemax = QString::number(nNetworkWeight);
     QString phase = "";
-    if (pindexBest->nHeight < 2125)
-    {
+    if (pindexBest->nHeight < 2125) {
         phase = "PoW";
-    }
-    else if (pindexBest->nHeight > 2124)
-    {
+    } else if (pindexBest->nHeight > 2124) {
         phase = "PoW+PoS";
     }
 
@@ -507,88 +492,77 @@ void BlockBrowser::updateStatistics()
     // QString qVolume = QLocale(QLocale::English).toString(volume);
     QString qVolume = QString::number(volume);
 
-    if(nHeight > heightPrevious)
-    {
+    if (nHeight > heightPrevious) {
         ui->heightBox_3->setText("<b><font color=\"green\">" + height + "</font></b>");
     } else {
-    ui->heightBox_3->setText(height);
+        ui->heightBox_3->setText(height);
     }
 
-    if(0 > stakeminPrevious)
-    {
+    if (0 > stakeminPrevious) {
         ui->minBox_2->setText("<b><font color=\"green\">" + stakemin + "</font></b>");
     } else {
-    ui->minBox_2->setText(stakemin);
+        ui->minBox_2->setText(stakemin);
     }
-    if(0 > stakemaxPrevious)
-    {
+    if (0 > stakemaxPrevious) {
         ui->maxBox_2->setText("<b><font color=\"green\">" + stakemax + "</font></b>");
     } else {
-    ui->maxBox_2->setText(stakemax);
+        ui->maxBox_2->setText(stakemax);
     }
 
-    if(phase != stakecPrevious)
-    {
+    if (phase != stakecPrevious) {
         ui->cBox_2->setText("<b><font color=\"green\">" + phase + "</font></b>");
     } else {
-    ui->cBox_2->setText(phase);
+        ui->cBox_2->setText(phase);
     }
 
 
-    if(nSubsidy < rewardPrevious)
-    {
+    if (nSubsidy < rewardPrevious) {
         ui->rewardBox_2->setText("<b><font color=\"red\">" + subsidy + "</font></b>");
     } else {
-    ui->rewardBox_2->setText(subsidy);
+        ui->rewardBox_2->setText(subsidy);
     }
 
-    if(pHardness > hardnessPrevious)
-    {
+    if (pHardness > hardnessPrevious) {
         ui->diffBox_2->setText("<b><font color=\"green\">" + hardness + "</font></b>");
-    } else if(pHardness < hardnessPrevious) {
+    } else if (pHardness < hardnessPrevious) {
         ui->diffBox_2->setText("<b><font color=\"red\">" + hardness + "</font></b>");
     } else {
         ui->diffBox_2->setText(hardness);
     }
 
-    if(pHardness2 > hardnessPrevious2)
-    {
+    if (pHardness2 > hardnessPrevious2) {
         ui->diffBox2_2->setText("<b><font color=\"green\">" + hardness2 + "</font></b>");
-    } else if(pHardness2 < hardnessPrevious2) {
+    } else if (pHardness2 < hardnessPrevious2) {
         ui->diffBox2_2->setText("<b><font color=\"red\">" + hardness2 + "</font></b>");
     } else {
         ui->diffBox2_2->setText(hardness2);
     }
 
-    if(pPawrate2 > netPawratePrevious)
-    {
+    if (pPawrate2 > netPawratePrevious) {
         ui->pawrateBox_2->setText("<b><font color=\"green\">" + pawrate + " MH/s</font></b>");
-    } else if(pPawrate2 < netPawratePrevious) {
+    } else if (pPawrate2 < netPawratePrevious) {
         ui->pawrateBox_2->setText("<b><font color=\"red\">" + pawrate + " MH/s</font></b>");
     } else {
         ui->pawrateBox_2->setText(pawrate + " MH/s");
     }
 
-    if(Qlpawrate != pawratePrevious)
-    {
+    if (Qlpawrate != pawratePrevious) {
         ui->localBox_2->setText("<b><font color=\"green\">" + Qlpawrate + "</font></b>");
     } else {
-    ui->localBox_2->setText(Qlpawrate);
+        ui->localBox_2->setText(Qlpawrate);
     }
 
-    if(peers > connectionPrevious)
-    {
+    if (peers > connectionPrevious) {
         ui->connectionBox_2->setText("<b><font color=\"green\">" + QPeers + "</font></b>");
-    } else if(peers < connectionPrevious) {
+    } else if (peers < connectionPrevious) {
         ui->connectionBox_2->setText("<b><font color=\"red\">" + QPeers + "</font></b>");
     } else {
         ui->connectionBox_2->setText(QPeers);
     }
 
-    if(volume > volumePrevious)
-    {
+    if (volume > volumePrevious) {
         ui->volumeBox_2->setText("<b><font color=\"green\">" + qVolume + " ESP" + "</font></b>");
-    } else if(volume < volumePrevious) {
+    } else if (volume < volumePrevious) {
         ui->volumeBox_2->setText("<b><font color=\"red\">" + qVolume + " ESP" + "</font></b>");
     } else {
         ui->volumeBox_2->setText(qVolume + " ESP");

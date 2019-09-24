@@ -1,15 +1,14 @@
 #include "optionsmodel.h"
 
 #include "bitcoinunits.h"
-#include "util/init.h"
 #include "core/wallet.h"
 #include "database/walletdb.h"
 #include "guiutil.h"
+#include "util/init.h"
 
 #include <QSettings>
 
-OptionsModel::OptionsModel(QObject *parent) :
-    QAbstractListModel(parent)
+OptionsModel::OptionsModel(QObject* parent) : QAbstractListModel(parent)
 {
     Init();
 }
@@ -57,18 +56,16 @@ void OptionsModel::Init()
         SoftSetArg("-lang", language.toStdString());
 }
 
-int OptionsModel::rowCount(const QModelIndex & parent) const
+int OptionsModel::rowCount(const QModelIndex& parent) const
 {
     return OptionIDRowCount;
 }
 
-QVariant OptionsModel::data(const QModelIndex & index, int role) const
+QVariant OptionsModel::data(const QModelIndex& index, int role) const
 {
-    if(role == Qt::EditRole)
-    {
+    if (role == Qt::EditRole) {
         QSettings settings;
-        switch(index.row())
-        {
+        switch (index.row()) {
         case StartAtStartup:
             return QVariant(GUIUtil::GetStartOnSystemStartup());
         case MinimizeToTray:
@@ -94,9 +91,9 @@ QVariant OptionsModel::data(const QModelIndex & index, int role) const
                 return QVariant(9050);
         }
         case Fee:
-            return QVariant((qint64) nTransactionFee);
+            return QVariant((qint64)nTransactionFee);
         case ReserveBalance:
-            return QVariant((qint64) nReserveBalance);
+            return QVariant((qint64)nReserveBalance);
         case DisplayUnit:
             return QVariant(nDisplayUnit);
         case Language:
@@ -112,14 +109,12 @@ QVariant OptionsModel::data(const QModelIndex & index, int role) const
     return QVariant();
 }
 
-bool OptionsModel::setData(const QModelIndex & index, const QVariant & value, int role)
+bool OptionsModel::setData(const QModelIndex& index, const QVariant& value, int role)
 {
     bool successful = true; /* set to false on parse error */
-    if(role == Qt::EditRole)
-    {
+    if (role == Qt::EditRole) {
         QSettings settings;
-        switch(index.row())
-        {
+        switch (index.row()) {
         case StartAtStartup:
             successful = GUIUtil::SetStartOnSystemStartup(value.toBool());
             break;
@@ -148,8 +143,7 @@ bool OptionsModel::setData(const QModelIndex & index, const QVariant & value, in
             proxy.SetIP(addr);
             settings.setValue("addrProxy", proxy.ToStringIPPort().c_str());
             successful = ApplyProxySettings();
-        }
-        break;
+        } break;
         case ProxyPort: {
             proxyType proxy;
             proxy = CService("127.0.0.1", 9050);
@@ -158,16 +152,15 @@ bool OptionsModel::setData(const QModelIndex & index, const QVariant & value, in
             proxy.SetPort(value.toInt());
             settings.setValue("addrProxy", proxy.ToStringIPPort().c_str());
             successful = ApplyProxySettings();
-        }
-        break;
+        } break;
         case Fee:
             nTransactionFee = value.toLongLong();
-            settings.setValue("nTransactionFee", (qint64) nTransactionFee);
+            settings.setValue("nTransactionFee", (qint64)nTransactionFee);
             emit transactionFeeChanged(nTransactionFee);
             break;
         case ReserveBalance:
             nReserveBalance = value.toLongLong();
-            settings.setValue("nReserveBalance", (qint64) nReserveBalance);
+            settings.setValue("nReserveBalance", (qint64)nReserveBalance);
             emit reserveBalanceChanged(nReserveBalance);
             break;
         case DisplayUnit:
@@ -182,12 +175,11 @@ bool OptionsModel::setData(const QModelIndex & index, const QVariant & value, in
             fCoinControlFeatures = value.toBool();
             settings.setValue("fCoinControlFeatures", fCoinControlFeatures);
             emit coinControlFeaturesChanged(fCoinControlFeatures);
-            }
-            break;
+        } break;
         case MinimizeCoinAge:
-           fMinimizeCoinAge = value.toBool();
-           settings.setValue("fMinimizeCoinAge", fMinimizeCoinAge);
-           break;
+            fMinimizeCoinAge = value.toBool();
+            settings.setValue("fMinimizeCoinAge", fMinimizeCoinAge);
+            break;
         default:
             break;
         }

@@ -5,10 +5,10 @@
 #include "ui_siteonchain.h"
 
 #include "clientmodel.h"
-#include "walletmodel.h"
-#include "optionsmodel.h"
-#include "guiutil.h"
 #include "guiconstants.h"
+#include "guiutil.h"
+#include "optionsmodel.h"
+#include "walletmodel.h"
 
 #include <QAbstractItemDelegate>
 #include <QPainter>
@@ -16,9 +16,8 @@
 #define DECORATION_SIZE 48
 #define NUM_ITEMS 10
 
-SiteOnChain::SiteOnChain(QWidget *parent) :
-    ui(new Ui::SiteOnChain),
-    model(0)
+SiteOnChain::SiteOnChain(QWidget* parent) : ui(new Ui::SiteOnChain),
+                                            model(0)
 {
     ui->setupUi(this);
 }

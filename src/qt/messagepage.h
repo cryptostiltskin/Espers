@@ -4,7 +4,7 @@
 #include <QWidget>
 
 namespace Ui {
-    class MessagePage;
+class MessagePage;
 }
 class ClientModel;
 class WalletModel;
@@ -19,20 +19,19 @@ class MessagePage : public QWidget
     Q_OBJECT
 
 public:
-    explicit MessagePage(QWidget *parent = 0);
+    explicit MessagePage(QWidget* parent = 0);
     ~MessagePage();
-    void setModel(WalletModel *model);
+    void setModel(WalletModel* model);
 
 public slots:
 
 signals:
 
 private:
-    Ui::MessagePage *ui;
-        WalletModel *model;
+    Ui::MessagePage* ui;
+    WalletModel* model;
 
 private slots:
-
 };
 
 #endif // MESSAGEPAGE_H

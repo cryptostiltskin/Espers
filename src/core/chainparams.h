@@ -22,7 +22,7 @@ class CBlock;
 
 struct CDNSSeedData {
     string name, host;
-    CDNSSeedData(const string &strName, const string &strHost) : name(strName), host(strHost) {}
+    CDNSSeedData(const string& strName, const string& strHost) : name(strName), host(strHost) {}
 };
 
 /**
@@ -65,15 +65,16 @@ public:
     const string& DataDir() const { return strDataDir; }
     virtual Network NetworkID() const = 0;
     const vector<CDNSSeedData>& DNSSeeds() const { return vSeeds; }
-    const std::vector<unsigned char> &Base58Prefix(Base58Type type) const { return base58Prefixes[type]; }
+    const std::vector<unsigned char>& Base58Prefix(Base58Type type) const { return base58Prefixes[type]; }
     virtual const vector<CAddress>& FixedSeeds() const = 0;
     int RPCPort() const { return nRPCPort; }
     int64_t TargetSpacing() const { return nTargetSpacing; }
     int64_t TargetTimespan() const { return nTargetTimespan; }
     int64_t AdjustmentInterval() const { return nAdjustmentInterval; }
     int StartPoSBlock() const { return nStartPoSBlock; }
+
 protected:
-    CChainParams() {};
+    CChainParams(){};
 
     uint256 hashGenesisBlock;
     MessageStartChars pchMessageStart;
@@ -97,7 +98,7 @@ protected:
  * Return the currently selected parameters. This won't change after app startup
  * outside of the unit tests.
  */
-const CChainParams &Params();
+const CChainParams& Params();
 
 /** Sets the params returned by Params() to those for the given network. */
 void SelectParams(CChainParams::Network network);
@@ -108,7 +109,8 @@ void SelectParams(CChainParams::Network network);
  */
 bool SelectParamsFromCommandLine();
 
-inline bool TestNet() {
+inline bool TestNet()
+{
     // Note: it's deliberate that this returns "false" for regression test mode.
     return Params().NetworkID() == CChainParams::TESTNET;
 }

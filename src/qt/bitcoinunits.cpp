@@ -2,9 +2,8 @@
 
 #include <QStringList>
 
-BitcoinUnits::BitcoinUnits(QObject *parent):
-        QAbstractListModel(parent),
-        unitlist(availableUnits())
+BitcoinUnits::BitcoinUnits(QObject* parent) : QAbstractListModel(parent),
+                                              unitlist(availableUnits())
 {
 }
 
@@ -19,8 +18,7 @@ QList<BitcoinUnits::Unit> BitcoinUnits::availableUnits()
 
 bool BitcoinUnits::valid(int unit)
 {
-    switch(unit)
-    {
+    switch (unit) {
     case ESP:
     case mESP:
     case uESP:
@@ -32,56 +30,71 @@ bool BitcoinUnits::valid(int unit)
 
 QString BitcoinUnits::name(int unit)
 {
-    switch(unit)
-    {
-    case ESP: return QString("ESP");
-    case mESP: return QString("mESP");
-    case uESP: return QString::fromUtf8("μESP");
-    default: return QString("???");
+    switch (unit) {
+    case ESP:
+        return QString("ESP");
+    case mESP:
+        return QString("mESP");
+    case uESP:
+        return QString::fromUtf8("μESP");
+    default:
+        return QString("???");
     }
 }
 
 QString BitcoinUnits::description(int unit)
 {
-    switch(unit)
-    {
-    case ESP: return QString("Espers");
-    case mESP: return QString("Milli-Espers (1 / 1,000)");
-    case uESP: return QString("Micro-Espers (1 / 1,000,000)");
-    default: return QString("???");
+    switch (unit) {
+    case ESP:
+        return QString("Espers");
+    case mESP:
+        return QString("Milli-Espers (1 / 1,000)");
+    case uESP:
+        return QString("Micro-Espers (1 / 1,000,000)");
+    default:
+        return QString("???");
     }
 }
 
 qint64 BitcoinUnits::factor(int unit)
 {
-    switch(unit)
-    {
-    case ESP:  return 100000000;
-    case mESP: return 100000;
-    case uESP: return 100;
-    default:   return 100000000;
+    switch (unit) {
+    case ESP:
+        return 100000000;
+    case mESP:
+        return 100000;
+    case uESP:
+        return 100;
+    default:
+        return 100000000;
     }
 }
 
 int BitcoinUnits::amountDigits(int unit)
 {
-    switch(unit)
-    {
-    case ESP: return 11; //          21,000,000,000 (# digits, without commas)
-    case mESP: return 14; //     21,000,000,000,000
-    case uESP: return 17; // 21,000,000,000,000,000
-    default: return 0;
+    switch (unit) {
+    case ESP:
+        return 11; //          21,000,000,000 (# digits, without commas)
+    case mESP:
+        return 14; //     21,000,000,000,000
+    case uESP:
+        return 17; // 21,000,000,000,000,000
+    default:
+        return 0;
     }
 }
 
 int BitcoinUnits::decimals(int unit)
 {
-    switch(unit)
-    {
-    case ESP: return 8;
-    case mESP: return 5;
-    case uESP: return 2;
-    default: return 0;
+    switch (unit) {
+    case ESP:
+        return 8;
+    case mESP:
+        return 5;
+    case uESP:
+        return 2;
+    default:
+        return 0;
     }
 }
 
@@ -89,7 +102,7 @@ QString BitcoinUnits::format(int unit, qint64 n, bool fPlus)
 {
     // Note: not using straight sprintf here because we do NOT want
     // localized number formatting.
-    if(!valid(unit))
+    if (!valid(unit))
         return QString(); // Refuse to format invalid unit
     qint64 coin = factor(unit);
     int num_decimals = decimals(unit);
@@ -101,7 +114,7 @@ QString BitcoinUnits::format(int unit, qint64 n, bool fPlus)
 
     // Right-trim excess zeros after the decimal point
     int nTrim = 0;
-    for (int i = remainder_str.size()-1; i>=2 && (remainder_str.at(i) == '0'); --i)
+    for (int i = remainder_str.size() - 1; i >= 2 && (remainder_str.at(i) == '0'); --i)
         ++nTrim;
     remainder_str.chop(nTrim);
 
@@ -117,57 +130,50 @@ QString BitcoinUnits::formatWithUnit(int unit, qint64 amount, bool plussign)
     return format(unit, amount, plussign) + QString(" ") + name(unit);
 }
 
-bool BitcoinUnits::parse(int unit, const QString &value, qint64 *val_out)
+bool BitcoinUnits::parse(int unit, const QString& value, qint64* val_out)
 {
-    if(!valid(unit) || value.isEmpty())
+    if (!valid(unit) || value.isEmpty())
         return false; // Refuse to parse invalid unit or empty string
     int num_decimals = decimals(unit);
     QStringList parts = value.split(".");
 
-    if(parts.size() > 2)
-    {
+    if (parts.size() > 2) {
         return false; // More than one dot
     }
     QString whole = parts[0];
     QString decimals;
 
-    if(parts.size() > 1)
-    {
+    if (parts.size() > 1) {
         decimals = parts[1];
     }
-    if(decimals.size() > num_decimals)
-    {
+    if (decimals.size() > num_decimals) {
         return false; // Exceeds max precision
     }
     bool ok = false;
     QString str = whole + decimals.leftJustified(num_decimals, '0');
 
-    if(str.size() > 18)
-    {
+    if (str.size() > 18) {
         return false; // Longer numbers will exceed 63 bits
     }
     qint64 retvalue = str.toLongLong(&ok);
-    if(val_out)
-    {
+    if (val_out) {
         *val_out = retvalue;
     }
     return ok;
 }
 
-int BitcoinUnits::rowCount(const QModelIndex &parent) const
+int BitcoinUnits::rowCount(const QModelIndex& parent) const
 {
     Q_UNUSED(parent);
     return unitlist.size();
 }
 
-QVariant BitcoinUnits::data(const QModelIndex &index, int role) const
+QVariant BitcoinUnits::data(const QModelIndex& index, int role) const
 {
     int row = index.row();
-    if(row >= 0 && row < unitlist.size())
-    {
+    if (row >= 0 && row < unitlist.size()) {
         Unit unit = unitlist.at(row);
-        switch(role)
-        {
+        switch (role) {
         case Qt::EditRole:
         case Qt::DisplayRole:
             return QVariant(name(unit));

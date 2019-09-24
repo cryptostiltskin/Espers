@@ -37,86 +37,86 @@ class BitcoinGUI : public QMainWindow
     Q_OBJECT
 
 public:
-    explicit BitcoinGUI(QWidget *parent = 0);
+    explicit BitcoinGUI(QWidget* parent = 0);
     ~BitcoinGUI();
 
     /** Set the client model.
         The client model represents the part of the core that communicates with the P2P network, and is wallet-agnostic.
     */
-    void setClientModel(ClientModel *clientModel);
+    void setClientModel(ClientModel* clientModel);
     /** Set the wallet model.
         The wallet model represents a bitcoin wallet, and offers access to the list of transactions, address book and sending
         functionality.
     */
-    void setWalletModel(WalletModel *walletModel);
+    void setWalletModel(WalletModel* walletModel);
 
 protected:
-    void changeEvent(QEvent *e);
-    void closeEvent(QCloseEvent *event);
-    void dragEnterEvent(QDragEnterEvent *event);
-    void dropEvent(QDropEvent *event);
+    void changeEvent(QEvent* e);
+    void closeEvent(QCloseEvent* event);
+    void dragEnterEvent(QDragEnterEvent* event);
+    void dropEvent(QDropEvent* event);
 
 private:
-    ClientModel *clientModel;
-    WalletModel *walletModel;
+    ClientModel* clientModel;
+    WalletModel* walletModel;
 
-    QToolBar *toolbar;
+    QToolBar* toolbar;
 
-    QStackedWidget *centralStackedWidget;
+    QStackedWidget* centralStackedWidget;
 
-    OverviewPage *overviewPage;
-    QWidget *transactionsPage;
-    AddressBookPage *addressBookPage;
-    AddressBookPage *receiveCoinsPage;
-    SendCoinsDialog *sendCoinsPage;
-    ClientControlPage *clientcontrolPage;
-    MessagePage *messagePage;
-    BlockBrowser *blockbrowser;
-    SiteOnChain *siteonChain;
-    SignVerifyMessageDialog *signVerifyMessageDialog;
+    OverviewPage* overviewPage;
+    QWidget* transactionsPage;
+    AddressBookPage* addressBookPage;
+    AddressBookPage* receiveCoinsPage;
+    SendCoinsDialog* sendCoinsPage;
+    ClientControlPage* clientcontrolPage;
+    MessagePage* messagePage;
+    BlockBrowser* blockbrowser;
+    SiteOnChain* siteonChain;
+    SignVerifyMessageDialog* signVerifyMessageDialog;
 
-    QLabel *labelEncryptionIcon;
-    QLabel *labelStakingIcon;
-    QLabel *labelConnectionsIcon;
-    QLabel *labelBlocksIcon;
-    QLabel *progressBarLabel;
-    QProgressBar *progressBar;
+    QLabel* labelEncryptionIcon;
+    QLabel* labelStakingIcon;
+    QLabel* labelConnectionsIcon;
+    QLabel* labelBlocksIcon;
+    QLabel* progressBarLabel;
+    QProgressBar* progressBar;
 
-    QMenuBar *appMenuBar;
-    QAction *overviewAction;
-    QAction *clientcontrolAction;
-    QAction *messageAction;
-    QAction *blockbrowserAction;
-    QAction *siteonChainAction;
-    QAction *historyAction;
-    QAction *quitAction;
-    QAction *sendCoinsAction;
-    QAction *addressBookAction;
-    QAction *signMessageAction;
-    QAction *verifyMessageAction;
-    QAction *aboutAction;
-    QAction *receiveCoinsAction;
-    QAction *optionsAction;
-    QAction *toggleHideAction;
-    QAction *exportAction;
-    QAction *encryptWalletAction;
-    QAction *backupWalletAction;
-    QAction *changePassphraseAction;
-    QAction *unlockWalletAction;
-    QAction *lockWalletAction;
-    QAction *aboutQtAction;
-    QAction *openRPCConsoleAction;
-    QAction *showBackupsAction;
-    QAction *editConfigAction;
-    QAction *editConfigExtAction;
-    QAction *openDataDirAction;
+    QMenuBar* appMenuBar;
+    QAction* overviewAction;
+    QAction* clientcontrolAction;
+    QAction* messageAction;
+    QAction* blockbrowserAction;
+    QAction* siteonChainAction;
+    QAction* historyAction;
+    QAction* quitAction;
+    QAction* sendCoinsAction;
+    QAction* addressBookAction;
+    QAction* signMessageAction;
+    QAction* verifyMessageAction;
+    QAction* aboutAction;
+    QAction* receiveCoinsAction;
+    QAction* optionsAction;
+    QAction* toggleHideAction;
+    QAction* exportAction;
+    QAction* encryptWalletAction;
+    QAction* backupWalletAction;
+    QAction* changePassphraseAction;
+    QAction* unlockWalletAction;
+    QAction* lockWalletAction;
+    QAction* aboutQtAction;
+    QAction* openRPCConsoleAction;
+    QAction* showBackupsAction;
+    QAction* editConfigAction;
+    QAction* editConfigExtAction;
+    QAction* openDataDirAction;
 
-    QSystemTrayIcon *trayIcon;
-    Notificator *notificator;
-    TransactionView *transactionView;
-    RPCConsole *rpcConsole;
+    QSystemTrayIcon* trayIcon;
+    Notificator* notificator;
+    TransactionView* transactionView;
+    RPCConsole* rpcConsole;
 
-    QMovie *syncIconMovie;
+    QMovie* syncIconMovie;
     /** Keep track of previous number of blocks, to detect progress */
     int prevBlocks;
 
@@ -151,7 +151,7 @@ public slots:
        @param[in] style     style definitions (icon and used buttons - buttons only for message boxes)
                             @see CClientUIInterface::MessageBoxFlags
     */
-    void message(const QString &title, const QString &message, bool modal, unsigned int style);
+    void message(const QString& title, const QString& message, bool modal, unsigned int style);
     /** Asks the user whether to pay the transaction fee or to cancel the transaction.
        It is currently not possible to pass a return value to another thread through
        BlockingQueuedConnection, so an indirected pointer is used.
@@ -160,7 +160,7 @@ public slots:
       @param[in] nFeeRequired       the required fee
       @param[out] payFee            true to pay the fee, false to not pay the fee
     */
-    void askFee(qint64 nFeeRequired, bool *payFee);
+    void askFee(qint64 nFeeRequired, bool* payFee);
     void handleURI(QString strURI);
 
 private slots:
@@ -200,7 +200,7 @@ private slots:
 
         The new items are those between start and end inclusive, under the given parent item.
     */
-    void incomingTransaction(const QModelIndex & parent, int start, int end);
+    void incomingTransaction(const QModelIndex& parent, int start, int end);
     /** Encrypt the wallet */
     void encryptWallet();
     /** Backup the wallet */

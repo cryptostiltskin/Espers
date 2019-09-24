@@ -4,16 +4,16 @@
 #ifndef ESPERS_BLOCKPARAMS_H
 #define ESPERS_BLOCKPARAMS_H
 
-#include "node/net.h"
 #include "chain.h"
+#include "node/net.h"
 #include "primitives/bignum.h"
 
 // Define difficulty retarget algorithms
 enum DiffMode {
     DIFF_DEFAULT = 0, // Default to invalid 0
-    DIFF_PPC     = 1, // Retarget using Peercoin per-block
-    DIFF_DGW     = 2, // Retarget using DarkGravityWave v3
-    DIFF_VRX     = 3, // Retarget using Terminal-Velocity-RateX
+    DIFF_PPC = 1,     // Retarget using Peercoin per-block
+    DIFF_DGW = 2,     // Retarget using DarkGravityWave v3
+    DIFF_VRX = 3,     // Retarget using Terminal-Velocity-RateX
 };
 
 void VRXswngdebug();

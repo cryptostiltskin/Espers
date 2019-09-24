@@ -5,10 +5,10 @@
 #include "ui_messagepage.h"
 
 #include "clientmodel.h"
-#include "walletmodel.h"
-#include "optionsmodel.h"
-#include "guiutil.h"
 #include "guiconstants.h"
+#include "guiutil.h"
+#include "optionsmodel.h"
+#include "walletmodel.h"
 
 #include <QAbstractItemDelegate>
 #include <QPainter>
@@ -16,9 +16,8 @@
 #define DECORATION_SIZE 48
 #define NUM_ITEMS 10
 
-MessagePage::MessagePage(QWidget *parent) :
-    ui(new Ui::MessagePage),
-    model(0)
+MessagePage::MessagePage(QWidget* parent) : ui(new Ui::MessagePage),
+                                            model(0)
 {
     ui->setupUi(this);
 }

@@ -8,4 +8,4 @@
 
 #include "txdb-leveldb.h"
 
-#endif  // ESPERS_TXDB_H
+#endif // ESPERS_TXDB_H

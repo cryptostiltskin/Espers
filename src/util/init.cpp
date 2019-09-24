@@ -5,20 +5,19 @@
 
 #include "init.h"
 
-#include "node/addrman.h"
-#include "core/main.h"
-#include "core/chainparams.h"
-#include "database/txdb.h"
-#include "rpc/rpcserver.h"
-#include "node/net.h"
-#include "subcore/key.h"
-#include "core/main.h"
-#include "util.h"
-#include "ui/ui_interface.h"
 #include "consensus/checkpoints.h"
+#include "core/chainparams.h"
+#include "core/main.h"
+#include "database/txdb.h"
+#include "node/addrman.h"
+#include "node/net.h"
+#include "rpc/rpcserver.h"
+#include "subcore/key.h"
+#include "ui/ui_interface.h"
+#include "util.h"
 #ifdef ENABLE_WALLET
-#include "database/db.h"
 #include "core/wallet.h"
+#include "database/db.h"
 #include "database/walletdb.h"
 #endif
 
@@ -26,11 +25,10 @@
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/bind.hpp>
 #include <boost/filesystem.hpp>
-#include <boost/filesystem/fstream.hpp>
 #include <boost/filesystem/convenience.hpp>
+#include <boost/filesystem/fstream.hpp>
 #include <boost/function.hpp>
 #include <boost/interprocess/sync/file_lock.hpp>
-#include <boost/algorithm/string/predicate.hpp>
 #include <boost/thread.hpp>
 #include <openssl/crypto.h>
 
@@ -39,11 +37,10 @@
 #endif
 
 #ifdef Q_OS_WIN
-#include <QTextStream>
-#include <QFile>
 #include <QDir>
-#include <QTextStream>
+#include <QFile>
 #include <QFileInfo>
+#include <QTextStream>
 #endif
 
 using namespace std;
@@ -152,19 +149,20 @@ void HandleSIGHUP(int)
     fReopenDebugLog = true;
 }
 
-bool static InitError(const std::string &str)
+bool static InitError(const std::string& str)
 {
     uiInterface.ThreadSafeMessageBox(str, "", CClientUIInterface::MSG_ERROR);
     return false;
 }
 
-bool static InitWarning(const std::string &str)
+bool static InitWarning(const std::string& str)
 {
     uiInterface.ThreadSafeMessageBox(str, "", CClientUIInterface::MSG_WARNING);
     return true;
 }
 
-bool static Bind(const CService &addr, bool fError = true) {
+bool static Bind(const CService& addr, bool fError = true)
+{
     if (IsLimited(addr))
         return false;
     std::string strError;
@@ -226,29 +224,26 @@ std::string HelpMessage()
 #endif
     strUsage += "  -testnet               " + _("Use the test network") + "\n";
     strUsage += "  -debug=<category>      " + _("Output debugging information (default: 0, supplying <category> is optional)") + "\n";
-    strUsage +=                               _("If <category> is not supplied, output all debugging information.") + "\n";
-    strUsage +=                               _("<category> can be:");
-    strUsage +=                                 " addrman, alert, db, lock, rand, rpc, selectcoins, mempool, net,"; // Don't translate these and qt below
-    strUsage +=                                 " coinage, coinstake, creation, stakemodifier";
-    if (fHaveGUI)
-    {
+    strUsage += _("If <category> is not supplied, output all debugging information.") + "\n";
+    strUsage += _("<category> can be:");
+    strUsage += " addrman, alert, db, lock, rand, rpc, selectcoins, mempool, net,"; // Don't translate these and qt below
+    strUsage += " coinage, coinstake, creation, stakemodifier";
+    if (fHaveGUI) {
         strUsage += ", qt.\n";
-    }
-    else
-    {
+    } else {
         strUsage += ".\n";
     }
     strUsage += "  -logtimestamps         " + _("Prepend debug output with timestamp") + "\n";
     strUsage += "  -shrinkdebugfile       " + _("Shrink debug.log file on client startup (default: 1 when no -debug)") + "\n";
     strUsage += "  -printtoconsole        " + _("Send trace/debug info to console instead of debug.log file") + "\n";
     strUsage += "  -regtest               " + _("Enter regression test mode, which uses a special chain in which blocks can be "
-                                                "solved instantly. This is intended for regression testing tools and app development.") + "\n";
+                                                "solved instantly. This is intended for regression testing tools and app development.") +
+                "\n";
     strUsage += "  -rpcuser=<user>        " + _("Username for JSON-RPC connections") + "\n";
     strUsage += "  -rpcpassword=<pw>      " + _("Password for JSON-RPC connections") + "\n";
     strUsage += "  -rpcport=<port>        " + _("Listen for JSON-RPC connections on <port> (default: 15715 or testnet: 25715)") + "\n";
     strUsage += "  -rpcallowip=<ip>       " + _("Allow JSON-RPC connections from specified IP address") + "\n";
-    if (!fHaveGUI)
-    {
+    if (!fHaveGUI) {
         strUsage += "  -rpcconnect=<ip>       " + _("Send commands to node running on <ip> (default: 127.0.0.1)") + "\n";
         strUsage += "  -rpcwait               " + _("Wait for RPC server to start") + "\n";
     }
@@ -270,10 +265,10 @@ std::string HelpMessage()
     strUsage += "  -backtoblock=<n>      " + _("Rollback local block chain to block height <n>") + "\n";
 
     strUsage += "\n" + _("Block creation options:") + "\n";
-    strUsage += "  -blockminsize=<n>      "     + _("Set minimum block size in bytes (default: 0)") + "\n";
-    strUsage += "  -blockmaxsize=<n>      "     + _("Set maximum block size in bytes (default: 250000)") + "\n";
-    strUsage += "  -blockprioritysize=<n> "     + _("Set maximum size of high-priority/low-fee transactions in bytes (default: 27000)") + "\n";
-    strUsage += "  -scaleblocksizeoptions=<n>"  + strprintf(_("Adaptively scale block size options (max, min, priority) (default: %d)"), DEFAULT_SCALE_BLOCK_SIZE_OPTIONS) + "\n";
+    strUsage += "  -blockminsize=<n>      " + _("Set minimum block size in bytes (default: 0)") + "\n";
+    strUsage += "  -blockmaxsize=<n>      " + _("Set maximum block size in bytes (default: 250000)") + "\n";
+    strUsage += "  -blockprioritysize=<n> " + _("Set maximum size of high-priority/low-fee transactions in bytes (default: 27000)") + "\n";
+    strUsage += "  -scaleblocksizeoptions=<n>" + strprintf(_("Adaptively scale block size options (max, min, priority) (default: %d)"), DEFAULT_SCALE_BLOCK_SIZE_OPTIONS) + "\n";
 
     strUsage += "\n" + _("SSL options: (see the Bitcoin Wiki for SSL setup instructions)") + "\n";
     strUsage += "  -rpcssl                                  " + _("Use OpenSSL (https) for JSON-RPC connections") + "\n";
@@ -294,7 +289,7 @@ std::string HelpMessage()
  */
 bool InitSanityCheck(void)
 {
-    if(!ECC_InitSanityCheck()) {
+    if (!ECC_InitSanityCheck()) {
         InitError("OpenSSL appears to lack support for elliptic curve cryptography. For more "
                   "information, visit https://en.bitcoin.it/wiki/OpenSSL_and_EC_Libraries");
         return false;
@@ -329,7 +324,7 @@ bool AppInit2(boost::thread_group& threadGroup)
     // which is not correct. Can be removed, when GCCs winbase.h is fixed!
 #define PROCESS_DEP_ENABLE 0x00000001
 #endif
-    typedef BOOL (WINAPI *PSETPROCDEPPOL)(DWORD);
+    typedef BOOL(WINAPI * PSETPROCDEPPOL)(DWORD);
     PSETPROCDEPPOL setProcDEPPol = (PSETPROCDEPPOL)GetProcAddress(GetModuleHandleA("Kernel32.dll"), "SetProcessDEPPolicy");
     if (setProcDEPPol != NULL) setProcDEPPol(PROCESS_DEP_ENABLE);
 #endif
@@ -361,13 +356,13 @@ bool AppInit2(boost::thread_group& threadGroup)
     CheckpointsMode = Checkpoints::STRICT;
     std::string strCpMode = GetArg("-cppolicy", "strict");
 
-    if(strCpMode == "strict")
+    if (strCpMode == "strict")
         CheckpointsMode = Checkpoints::STRICT;
 
-    if(strCpMode == "advisory")
+    if (strCpMode == "advisory")
         CheckpointsMode = Checkpoints::ADVISORY;
 
-    if(strCpMode == "permissive")
+    if (strCpMode == "permissive")
         CheckpointsMode = Checkpoints::PERMISSIVE;
 
     nDerivationMethodIndex = 0;
@@ -462,16 +457,14 @@ bool AppInit2(boost::thread_group& threadGroup)
     bool fDisableWallet = GetBoolArg("-disablewallet", false);
 #endif
 
-    if (mapArgs.count("-timeout"))
-    {
+    if (mapArgs.count("-timeout")) {
         int nNewTimeout = GetArg("-timeout", 5000);
         if (nNewTimeout > 0 && nNewTimeout < 600000)
             nConnectTimeout = nNewTimeout;
     }
 
 #ifdef ENABLE_WALLET
-    if (mapArgs.count("-paytxfee"))
-    {
+    if (mapArgs.count("-paytxfee")) {
         if (!ParseMoney(mapArgs["-paytxfee"], nTransactionFee))
             return InitError(strprintf(_("Invalid amount for -paytxfee=<amount>: '%s'"), mapArgs["-paytxfee"]));
         if (nTransactionFee > 0.25 * COIN)
@@ -483,8 +476,7 @@ bool AppInit2(boost::thread_group& threadGroup)
     fMinimizeCoinAge = GetBoolArg("-minimizecoinage", false);
 
 #ifdef ENABLE_WALLET
-    if (mapArgs.count("-mininput"))
-    {
+    if (mapArgs.count("-mininput")) {
         if (!ParseMoney(mapArgs["-mininput"], nMinimumInputValue))
             return InitError(strprintf(_("Invalid amount for -mininput=<amount>: '%s'"), mapArgs["-mininput"]));
     }
@@ -531,19 +523,15 @@ bool AppInit2(boost::thread_group& threadGroup)
     // ********************************************************* Step 5: verify database integrity
 #ifdef ENABLE_WALLET
     if (!fDisableWallet) {
-
         filesystem::path backupDir = GetDataDir() / "backups";
-        if (!filesystem::exists(backupDir))
-        {
+        if (!filesystem::exists(backupDir)) {
             // Always create backup folder to not confuse the operating system's file browser
             filesystem::create_directories(backupDir);
         }
         nWalletBackups = GetArg("-createwalletbackups", 10);
         nWalletBackups = std::max(0, std::min(10, nWalletBackups));
-        if(nWalletBackups > 0)
-        {
-            if (filesystem::exists(backupDir))
-            {
+        if (nWalletBackups > 0) {
+            if (filesystem::exists(backupDir)) {
                 // Create backup of the wallet
                 std::string dateTimeStr = DateTimeStrFormat(".%Y-%m-%d-%H.%M", GetTime());
                 std::string backupPathStr = backupDir.string();
@@ -557,7 +545,7 @@ bool AppInit2(boost::thread_group& threadGroup)
                 try {
                     boost::filesystem::copy_file(sourceFile, backupFile);
                     LogPrintf("Creating backup of %s -> %s\n", sourceFile, backupFile);
-                } catch(boost::filesystem::filesystem_error &error) {
+                } catch (boost::filesystem::filesystem_error& error) {
                     LogPrintf("Failed to create backup %s\n", error.what());
                 }
                 // Keep only the last 10 backups, including the new one of course
@@ -568,15 +556,12 @@ bool AppInit2(boost::thread_group& threadGroup)
                 backupFolder.make_preferred();
                 // Build map of backup files for current(!) wallet sorted by last write time
                 boost::filesystem::path currentFile;
-                for (boost::filesystem::directory_iterator dir_iter(backupFolder); dir_iter != end_iter; ++dir_iter)
-                {
+                for (boost::filesystem::directory_iterator dir_iter(backupFolder); dir_iter != end_iter; ++dir_iter) {
                     // Only check regular files
-                    if ( boost::filesystem::is_regular_file(dir_iter->status()))
-                    {
+                    if (boost::filesystem::is_regular_file(dir_iter->status())) {
                         currentFile = dir_iter->path().filename();
                         // Only add the backups for the current wallet, e.g. wallet.dat.*
-                        if(currentFile.string().find(strWalletFileName) != string::npos)
-                        {
+                        if (currentFile.string().find(strWalletFileName) != string::npos) {
                             folder_set.insert(folder_set_t::value_type(boost::filesystem::last_write_time(dir_iter->path()), *dir_iter));
                         }
                     }
@@ -586,13 +571,12 @@ bool AppInit2(boost::thread_group& threadGroup)
                 BOOST_REVERSE_FOREACH(PAIRTYPE(const std::time_t, boost::filesystem::path) file, folder_set)
                 {
                     counter++;
-                    if (counter > nWalletBackups)
-                    {
+                    if (counter > nWalletBackups) {
                         // More than nWalletBackups backups: delete oldest one(s)
                         try {
                             boost::filesystem::remove(file.second);
                             LogPrintf("Old backup deleted: %s\n", file.second);
-                        } catch(boost::filesystem::filesystem_error &error) {
+                        } catch (boost::filesystem::filesystem_error& error) {
                             LogPrintf("Failed to delete backup %s\n", error.what());
                         }
                     }
@@ -603,16 +587,15 @@ bool AppInit2(boost::thread_group& threadGroup)
 
         uiInterface.InitMessage(_("Verifying database integrity..."));
 
-        if (!bitdb.Open(GetDataDir()))
-        {
+        if (!bitdb.Open(GetDataDir())) {
             // try moving the database env out of the way
             boost::filesystem::path pathDatabase = GetDataDir() / "database";
             boost::filesystem::path pathDatabaseBak = GetDataDir() / strprintf("database.%d.bak", GetTime());
             try {
                 boost::filesystem::rename(pathDatabase, pathDatabaseBak);
                 LogPrintf("Moved old %s to %s. Retrying.\n", pathDatabase.string(), pathDatabaseBak.string());
-            } catch(boost::filesystem::filesystem_error &error) {
-                 // failure is ok (well, not really, but it's not worse than what we started with)
+            } catch (boost::filesystem::filesystem_error& error) {
+                // failure is ok (well, not really, but it's not worse than what we started with)
             }
 
             // try again
@@ -623,29 +606,27 @@ bool AppInit2(boost::thread_group& threadGroup)
             }
         }
 
-        if (GetBoolArg("-salvagewallet", false))
-        {
+        if (GetBoolArg("-salvagewallet", false)) {
             // Recover readable keypairs:
             if (!CWalletDB::Recover(bitdb, strWalletFileName, true))
                 return false;
         }
 
-        if (filesystem::exists(GetDataDir() / strWalletFileName))
-        {
+        if (filesystem::exists(GetDataDir() / strWalletFileName)) {
             CDBEnv::VerifyResult r = bitdb.Verify(strWalletFileName, CWalletDB::Recover);
-            if (r == CDBEnv::RECOVER_OK)
-            {
+            if (r == CDBEnv::RECOVER_OK) {
                 string msg = strprintf(_("Warning: wallet.dat corrupt, data salvaged!"
                                          " Original wallet.dat saved as wallet.{timestamp}.bak in %s; if"
                                          " your balance or transactions are incorrect you should"
-                                         " restore from a backup."), strDataDir);
+                                         " restore from a backup."),
+                    strDataDir);
                 InitWarning(msg);
             }
             if (r == CDBEnv::RECOVER_FAIL)
                 return InitError(_("wallet.dat corrupt, salvage failed"));
         }
 
-    } // (!fDisableWallet)
+    }  // (!fDisableWallet)
 #endif // ENABLE_WALLET
     // ********************************************************* Step 6: network initialization
 
@@ -657,10 +638,10 @@ bool AppInit2(boost::thread_group& threadGroup)
         return InitError(strprintf("Total length of network version string %i exceeds maximum of %i characters. Reduce the number and/or size of uacomments.",
             strSubVersion.size(), MAX_SUBVERSION_LENGTH));
     }
-    
+
     if (mapArgs.count("-onlynet")) {
         std::set<enum Network> nets;
-        BOOST_FOREACH(std::string snet, mapMultiArgs["-onlynet"]) {
+        BOOST_FOREACH (std::string snet, mapMultiArgs["-onlynet"]) {
             enum Network net = ParseNetwork(snet);
             if (net == NET_UNROUTABLE)
                 return InitError(strprintf(_("Unknown network specified in -onlynet: '%s'"), snet));
@@ -710,11 +691,10 @@ bool AppInit2(boost::thread_group& threadGroup)
     fNameLookup = GetBoolArg("-dns", true);
 
     bool fBound = false;
-    if (!fNoListen)
-    {
+    if (!fNoListen) {
         std::string strError;
         if (mapArgs.count("-bind")) {
-            BOOST_FOREACH(std::string strBind, mapMultiArgs["-bind"]) {
+            BOOST_FOREACH (std::string strBind, mapMultiArgs["-bind"]) {
                 CService addrBind;
                 if (!Lookup(strBind.c_str(), addrBind, GetListenPort(), false))
                     return InitError(strprintf(_("Cannot resolve -bind address: '%s'"), strBind));
@@ -732,9 +712,8 @@ bool AppInit2(boost::thread_group& threadGroup)
             return InitError(_("Failed to listen on any port. Use -listen=0 if you want this."));
     }
 
-    if (mapArgs.count("-externalip"))
-    {
-        BOOST_FOREACH(string strAddr, mapMultiArgs["-externalip"]) {
+    if (mapArgs.count("-externalip")) {
+        BOOST_FOREACH (string strAddr, mapMultiArgs["-externalip"]) {
             CService addrLocal(strAddr, GetListenPort(), fNameLookup);
             if (!addrLocal.IsValid())
                 return InitError(strprintf(_("Cannot resolve -externalip address: '%s'"), strAddr));
@@ -745,8 +724,7 @@ bool AppInit2(boost::thread_group& threadGroup)
 #ifdef ENABLE_WALLET
     if (mapArgs.count("-reservebalance")) // ppcoin: reserve balance amount
     {
-        if (!ParseMoney(mapArgs["-reservebalance"], nReserveBalance))
-        {
+        if (!ParseMoney(mapArgs["-reservebalance"], nReserveBalance)) {
             InitError(_("Invalid amount for -reservebalance=<amount>"));
             return false;
         }
@@ -759,13 +737,12 @@ bool AppInit2(boost::thread_group& threadGroup)
             InitError(_("Unable to sign checkpoint, wrong checkpointkey?\n"));
     }
 
-    BOOST_FOREACH(string strDest, mapMultiArgs["-seednode"])
+    BOOST_FOREACH (string strDest, mapMultiArgs["-seednode"])
         AddOneShot(strDest);
 
     // ********************************************************* Step 7: load blockchain
 
-    if (GetBoolArg("-loadblockindextest", false))
-    {
+    if (GetBoolArg("-loadblockindextest", false)) {
         CTxDB txdb("r");
         txdb.LoadBlockIndex();
         PrintBlockTree();
@@ -782,28 +759,23 @@ bool AppInit2(boost::thread_group& threadGroup)
     // as LoadBlockIndex can take several minutes, it's possible the user
     // requested to kill bitcoin-qt during the last operation. If so, exit.
     // As the program has not fully started yet, Shutdown() is possibly overkill.
-    if (fRequestShutdown)
-    {
+    if (fRequestShutdown) {
         LogPrintf("Shutdown requested. Exiting.\n");
         return false;
     }
     LogPrintf(" block index %15dms\n", GetTimeMillis() - nStart);
 
-    if (GetBoolArg("-printblockindex", false) || GetBoolArg("-printblocktree", false))
-    {
+    if (GetBoolArg("-printblockindex", false) || GetBoolArg("-printblocktree", false)) {
         PrintBlockTree();
         return false;
     }
 
-    if (mapArgs.count("-printblock"))
-    {
+    if (mapArgs.count("-printblock")) {
         string strMatch = mapArgs["-printblock"];
         int nFound = 0;
-        for (map<uint256, CBlockIndex*>::iterator mi = mapBlockIndex.begin(); mi != mapBlockIndex.end(); ++mi)
-        {
+        for (map<uint256, CBlockIndex*>::iterator mi = mapBlockIndex.begin(); mi != mapBlockIndex.end(); ++mi) {
             uint256 hash = (*mi).first;
-            if (strncmp(hash.ToString().c_str(), strMatch.c_str(), strMatch.size()) == 0)
-            {
+            if (strncmp(hash.ToString().c_str(), strMatch.c_str(), strMatch.size()) == 0) {
                 CBlockIndex* pindex = (*mi).second;
                 CBlock block;
                 block.ReadFromDisk(pindex);
@@ -817,25 +789,21 @@ bool AppInit2(boost::thread_group& threadGroup)
         return false;
     }
 
-    if (mapArgs.count("-backtoblock"))
-    {
+    if (mapArgs.count("-backtoblock")) {
         int slctBCK = DEFAULT_BACK_TO_BLOCK;
         int nNewHeight = GetArg("-backtoblock", slctBCK);
         CBlockIndex* pindex = pindexBest;
-        while (pindex != NULL && pindex->nHeight > nNewHeight)
-        {
+        while (pindex != NULL && pindex->nHeight > nNewHeight) {
             pindex = pindex->pprev;
         }
 
-        if (pindex != NULL)
-        {
+        if (pindex != NULL) {
             LogPrintf("Back to block index %d\n", nNewHeight);
-	        CTxDB txdbAddr("rw");
+            CTxDB txdbAddr("rw");
             CBlock block;
             block.ReadFromDisk(pindex);
             block.SetBestChain(txdbAddr, pindex);
-        }
-        else
+        } else
             LogPrintf("Block %d not found\n", nNewHeight);
     }
 
@@ -851,46 +819,38 @@ bool AppInit2(boost::thread_group& threadGroup)
         bool fFirstRun = true;
         pwalletMain = new CWallet(strWalletFileName);
         DBErrors nLoadWalletRet = pwalletMain->LoadWallet(fFirstRun);
-        if (nLoadWalletRet != DB_LOAD_OK)
-        {
+        if (nLoadWalletRet != DB_LOAD_OK) {
             if (nLoadWalletRet == DB_CORRUPT)
                 strErrors << _("Error loading wallet.dat: Wallet corrupted") << "\n";
-            else if (nLoadWalletRet == DB_NONCRITICAL_ERROR)
-            {
+            else if (nLoadWalletRet == DB_NONCRITICAL_ERROR) {
                 string msg(_("Warning: error reading wallet.dat! All keys read correctly, but transaction data"
                              " or address book entries might be missing or incorrect."));
                 InitWarning(msg);
-            }
-            else if (nLoadWalletRet == DB_TOO_NEW)
+            } else if (nLoadWalletRet == DB_TOO_NEW)
                 strErrors << _("Error loading wallet.dat: Wallet requires newer version of Espers") << "\n";
-            else if (nLoadWalletRet == DB_NEED_REWRITE)
-            {
+            else if (nLoadWalletRet == DB_NEED_REWRITE) {
                 strErrors << _("Wallet needed to be rewritten: restart Espers to complete") << "\n";
                 LogPrintf("%s", strErrors.str());
                 return InitError(strErrors.str());
-            }
-            else
+            } else
                 strErrors << _("Error loading wallet.dat") << "\n";
         }
 
-        if (GetBoolArg("-upgradewallet", fFirstRun))
-        {
+        if (GetBoolArg("-upgradewallet", fFirstRun)) {
             int nMaxVersion = GetArg("-upgradewallet", 0);
             if (nMaxVersion == 0) // the -upgradewallet without argument case
             {
                 LogPrintf("Performing wallet upgrade to %i\n", FEATURE_LATEST);
                 nMaxVersion = CLIENT_VERSION;
                 pwalletMain->SetMinVersion(FEATURE_LATEST); // permanently upgrade the wallet immediately
-            }
-            else
+            } else
                 LogPrintf("Allowing wallet upgrade up to %i\n", nMaxVersion);
             if (nMaxVersion < pwalletMain->GetVersion())
                 strErrors << _("Cannot downgrade wallet") << "\n";
             pwalletMain->SetMaxVersion(nMaxVersion);
         }
 
-        if (fFirstRun)
-        {
+        if (fFirstRun) {
             // Create new keyUser and set as default key
             RandAddSeedPerfmon();
 
@@ -909,11 +869,10 @@ bool AppInit2(boost::thread_group& threadGroup)
 
         RegisterWallet(pwalletMain);
 
-        CBlockIndex *pindexRescan = pindexBest;
+        CBlockIndex* pindexRescan = pindexBest;
         if (GetBoolArg("-rescan", false))
             pindexRescan = pindexGenesisBlock;
-        else
-        {
+        else {
             CWalletDB walletdb(strWalletFileName);
             CBlockLocator locator;
             if (walletdb.ReadBestBlock(locator))
@@ -921,8 +880,7 @@ bool AppInit2(boost::thread_group& threadGroup)
             else
                 pindexRescan = pindexGenesisBlock;
         }
-        if (pindexBest != pindexRescan && pindexBest && pindexRescan && pindexBest->nHeight > pindexRescan->nHeight)
-        {
+        if (pindexBest != pindexRescan && pindexBest && pindexRescan && pindexBest->nHeight > pindexRescan->nHeight) {
             uiInterface.InitMessage(_("Rescanning..."));
             LogPrintf("Rescanning last %i blocks (from block %i)...\n", pindexBest->nHeight - pindexRescan->nHeight, pindexRescan->nHeight);
             nStart = GetTimeMillis();
@@ -931,16 +889,15 @@ bool AppInit2(boost::thread_group& threadGroup)
             pwalletMain->SetBestChain(CBlockLocator(pindexBest));
             nWalletDBUpdated++;
         }
-    } // (!fDisableWallet)
-#else // ENABLE_WALLET
+    }  // (!fDisableWallet)
+#else  // ENABLE_WALLET
     LogPrintf("No wallet compiled in!\n");
 #endif // !ENABLE_WALLET
     // ********************************************************* Step 9: import blocks
 
     std::vector<boost::filesystem::path> vImportFiles;
-    if (mapArgs.count("-loadblock"))
-    {
-        BOOST_FOREACH(string strFile, mapMultiArgs["-loadblock"])
+    if (mapArgs.count("-loadblock")) {
+        BOOST_FOREACH (string strFile, mapMultiArgs["-loadblock"])
             vImportFiles.push_back(strFile);
     }
     threadGroup.create_thread(boost::bind(&ThreadImport, vImportFiles));
@@ -958,7 +915,7 @@ bool AppInit2(boost::thread_group& threadGroup)
     }
 
     LogPrintf("Loaded %i addresses from peers.dat  %dms\n",
-           addrman.size(), GetTimeMillis() - nStart);
+        addrman.size(), GetTimeMillis() - nStart);
 
     // ********************************************************* Step 11: start node
 
@@ -972,24 +929,18 @@ bool AppInit2(boost::thread_group& threadGroup)
     uiInterface.InitMessage(_("Checking experimental feature toggle..."));
     strLiveForkToggle = GetArg("-liveforktoggle", "");
     LogPrintf("Checking for experimental testing feature fork toggle...\n");
-    if(!strLiveForkToggle.empty()){
+    if (!strLiveForkToggle.empty()) {
         LogPrintf("Verifying height selection for experimental testing feature fork toggle...\n");
         std::istringstream(strLiveForkToggle) >> nLiveForkToggle;
-        if(nLiveForkToggle == 0)
-        {
+        if (nLiveForkToggle == 0) {
             LogPrintf("Continuing with fork toggle manually disabled by user...\n");
-        }
-        else if(nLiveForkToggle < nBestHeight)
-        {
+        } else if (nLiveForkToggle < nBestHeight) {
             return InitError(_("Invalid experimental testing feature fork toggle, please select a higher block than currently sync'd height\n"));
-        }
-        else
-        {
+        } else {
             LogPrintf("Continuing with fork toggle set for block: %s | Happy testing!\n", strLiveForkToggle.c_str());
         }
 
-    }
-    else {
+    } else {
         nLiveForkToggle = 0;
         LogPrintf("No experimental testing feature fork toggle detected... skipping...\n");
     }
@@ -997,12 +948,12 @@ bool AppInit2(boost::thread_group& threadGroup)
     RandAddSeedPerfmon();
 
     //// debug print
-    LogPrintf("mapBlockIndex.size() = %u\n",   mapBlockIndex.size());
-    LogPrintf("nBestHeight = %d\n",                   nBestHeight);
+    LogPrintf("mapBlockIndex.size() = %u\n", mapBlockIndex.size());
+    LogPrintf("nBestHeight = %d\n", nBestHeight);
 #ifdef ENABLE_WALLET
-    LogPrintf("setKeyPool.size() = %u\n",      pwalletMain ? pwalletMain->setKeyPool.size() : 0);
-    LogPrintf("mapWallet.size() = %u\n",       pwalletMain ? pwalletMain->mapWallet.size() : 0);
-    LogPrintf("mapAddressBook.size() = %u\n",  pwalletMain ? pwalletMain->mapAddressBook.size() : 0);
+    LogPrintf("setKeyPool.size() = %u\n", pwalletMain ? pwalletMain->setKeyPool.size() : 0);
+    LogPrintf("mapWallet.size() = %u\n", pwalletMain ? pwalletMain->mapWallet.size() : 0);
+    LogPrintf("mapAddressBook.size() = %u\n", pwalletMain ? pwalletMain->mapAddressBook.size() : 0);
 #endif
 
     StartNode(threadGroup);
@@ -1029,10 +980,9 @@ bool AppInit2(boost::thread_group& threadGroup)
     //TODO: CORRECT THIS
     QString runcheck = QDir::currentPath() + "/chk.file";
     QFile rcheck(runcheck);
-    if(rcheck.open(QIODevice::ReadWrite))
-    {
-    QTextStream saturate(&rcheck);
-    saturate << "Temp File that flags launcher" << endl;
+    if (rcheck.open(QIODevice::ReadWrite)) {
+        QTextStream saturate(&rcheck);
+        saturate << "Temp File that flags launcher" << endl;
     }
 #endif
 

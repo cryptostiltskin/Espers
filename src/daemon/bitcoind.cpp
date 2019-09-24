@@ -3,8 +3,8 @@
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "../rpc/rpcserver.h"
 #include "../rpc/rpcclient.h"
+#include "../rpc/rpcserver.h"
 #include "../util/init.h"
 #include <boost/algorithm/string/predicate.hpp>
 
@@ -12,13 +12,11 @@ void WaitForShutdown(boost::thread_group* threadGroup)
 {
     bool fShutdown = ShutdownRequested();
     // Tell the main threads to shutdown.
-    while (!fShutdown)
-    {
+    while (!fShutdown) {
         MilliSleep(200);
         fShutdown = ShutdownRequested();
     }
-    if (threadGroup)
-    {
+    if (threadGroup) {
         threadGroup->interrupt_all();
         threadGroup->join_all();
     }
@@ -33,29 +31,26 @@ bool AppInit(int argc, char* argv[])
     boost::thread_group threadGroup;
 
     bool fRet = false;
-    try
-    {
+    try {
         //
         // Parameters
         //
         // If Qt is used, parameters/bitcoin.conf are parsed in qt/bitcoin.cpp's main()
         ParseParameters(argc, argv);
-        if (!boost::filesystem::is_directory(GetDataDir(false)))
-        {
+        if (!boost::filesystem::is_directory(GetDataDir(false))) {
             fprintf(stderr, "Error: Specified directory does not exist\n");
             Shutdown();
         }
         ReadConfigFile(mapArgs, mapMultiArgs);
 
-        if (mapArgs.count("-?") || mapArgs.count("--help"))
-        {
+        if (mapArgs.count("-?") || mapArgs.count("--help")) {
             // First part of help message is specific to bitcoind / RPC client
             std::string strUsage = _("Espers version") + " " + FormatFullVersion() + "\n\n" +
-                _("Usage:") + "\n" +
-                  "  Espersd [options]                     " + "\n" +
-                  "  Espersd [options] <command> [params]  " + _("Send command to -server or Espersd") + "\n" +
-                  "  Espersd [options] help                " + _("List commands") + "\n" +
-                  "  Espersd [options] help <command>      " + _("Get help for a command") + "\n";
+                                   _("Usage:") + "\n" +
+                                   "  Espersd [options]                     " + "\n" +
+                                   "  Espersd [options] <command> [params]  " + _("Send command to -server or Espersd") + "\n" +
+                                   "  Espersd [options] help                " + _("List commands") + "\n" +
+                                   "  Espersd [options] help <command>      " + _("Get help for a command") + "\n";
 
             strUsage += "\n" + HelpMessage();
 
@@ -68,8 +63,7 @@ bool AppInit(int argc, char* argv[])
             if (!IsSwitchChar(argv[i][0]) && !boost::algorithm::istarts_with(argv[i], "Espers:"))
                 fCommandLine = true;
 
-        if (fCommandLine)
-        {
+        if (fCommandLine) {
             if (!SelectParamsFromCommandLine()) {
                 fprintf(stderr, "Error: invalid combination of -regtest and -testnet.\n");
                 return false;
@@ -79,12 +73,10 @@ bool AppInit(int argc, char* argv[])
         }
 #if !defined(WIN32)
         fDaemon = GetBoolArg("-daemon", false);
-        if (fDaemon)
-        {
+        if (fDaemon) {
             // Daemonize
             pid_t pid = fork();
-            if (pid < 0)
-            {
+            if (pid < 0) {
                 fprintf(stderr, "Error: fork() returned %d errno %d\n", pid, errno);
                 return false;
             }
@@ -102,15 +94,13 @@ bool AppInit(int argc, char* argv[])
 #endif
 
         fRet = AppInit2(threadGroup);
-    }
-    catch (std::exception& e) {
+    } catch (std::exception& e) {
         PrintException(&e, "AppInit()");
     } catch (...) {
         PrintException(NULL, "AppInit()");
     }
 
-    if (!fRet)
-    {
+    if (!fRet) {
         threadGroup.interrupt_all();
         // threadGroup.join_all(); was left out intentionally here, because we didn't re-test all of
         // the startup-failure cases to make sure they don't result in a hang due to some

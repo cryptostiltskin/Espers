@@ -3,15 +3,15 @@
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
+#include "consensus/kernel.h"
+#include "consensus/miner.h"
 #include "core/blockparams.h"
-#include "rpcserver.h"
 #include "core/chainparams.h"
 #include "core/main.h"
 #include "database/db.h"
 #include "database/txdb.h"
+#include "rpcserver.h"
 #include "util/init.h"
-#include "consensus/miner.h"
-#include "consensus/kernel.h"
 
 #include <boost/assign/list_of.hpp>
 
@@ -37,7 +37,8 @@ void ShutdownRPCMining()
     if (!pMiningKey)
         return;
 
-    delete pMiningKey; pMiningKey = NULL;
+    delete pMiningKey;
+    pMiningKey = NULL;
 }
 
 Value getsubsidy(const Array& params, bool fHelp)
@@ -67,8 +68,7 @@ Value getstakesubsidy(const Array& params, bool fHelp)
     CTransaction tx;
     try {
         ssData >> tx;
-    }
-    catch (std::exception &e) {
+    } catch (std::exception& e) {
         throw JSONRPCError(RPC_DESERIALIZATION_ERROR, "TX decode failed");
     }
 
@@ -96,29 +96,29 @@ Value getmininginfo(const Array& params, bool fHelp)
     int64_t nRewardPoS = (uint64_t)GetProofOfStakeReward(nBestHeight, 0);
 
     Object obj, diff, weight;
-    obj.push_back(Pair("blocks",        (int)nBestHeight));
-    obj.push_back(Pair("currentblocksize",(uint64_t)nLastBlockSize));
-    obj.push_back(Pair("currentblocktx",(uint64_t)nLastBlockTx));
+    obj.push_back(Pair("blocks", (int)nBestHeight));
+    obj.push_back(Pair("currentblocksize", (uint64_t)nLastBlockSize));
+    obj.push_back(Pair("currentblocktx", (uint64_t)nLastBlockTx));
 
-    diff.push_back(Pair("proof-of-work",        GetDifficulty()));
-    diff.push_back(Pair("proof-of-stake",       GetDifficulty(GetLastBlockIndex(pindexBest, true))));
-    diff.push_back(Pair("search-interval",      (int)nLastCoinStakeSearchInterval));
-    obj.push_back(Pair("difficulty",    diff));
+    diff.push_back(Pair("proof-of-work", GetDifficulty()));
+    diff.push_back(Pair("proof-of-stake", GetDifficulty(GetLastBlockIndex(pindexBest, true))));
+    diff.push_back(Pair("search-interval", (int)nLastCoinStakeSearchInterval));
+    obj.push_back(Pair("difficulty", diff));
 
-    obj.push_back(Pair("blockvalue-PoS",    nRewardPoS));
-    obj.push_back(Pair("blockvalue-PoW",    nRewardPoW));//obj.push_back(Pair("blockvalue",    (uint64_t)GetProofOfWorkReward(nBestHeight, 0)));
-    obj.push_back(Pair("netmhashps",     GetPoWMHashPS()));
+    obj.push_back(Pair("blockvalue-PoS", nRewardPoS));
+    obj.push_back(Pair("blockvalue-PoW", nRewardPoW)); //obj.push_back(Pair("blockvalue",    (uint64_t)GetProofOfWorkReward(nBestHeight, 0)));
+    obj.push_back(Pair("netmhashps", GetPoWMHashPS()));
     obj.push_back(Pair("netstakeweight", GetPoSKernelPS()));
-    obj.push_back(Pair("errors",        GetWarnings("statusbar")));
-    obj.push_back(Pair("pooledtx",      (uint64_t)mempool.size()));
+    obj.push_back(Pair("errors", GetWarnings("statusbar")));
+    obj.push_back(Pair("pooledtx", (uint64_t)mempool.size()));
 
-    weight.push_back(Pair("minimum",    (uint64_t)nWeight));
-    weight.push_back(Pair("maximum",    (uint64_t)0));
-    weight.push_back(Pair("combined",  (uint64_t)nWeight));
+    weight.push_back(Pair("minimum", (uint64_t)nWeight));
+    weight.push_back(Pair("maximum", (uint64_t)0));
+    weight.push_back(Pair("combined", (uint64_t)nWeight));
     obj.push_back(Pair("stakeweight", weight));
 
-    obj.push_back(Pair("stakeinterest",    (uint64_t)COIN_YEAR_REWARD));
-    obj.push_back(Pair("testnet",       TestNet()));
+    obj.push_back(Pair("stakeinterest", (uint64_t)COIN_YEAR_REWARD));
+    obj.push_back(Pair("testnet", TestNet()));
     return obj;
 }
 
@@ -156,7 +156,7 @@ Value getstakinginfo(const Array& params, bool fHelp)
     obj.push_back(Pair("expectedtime", nExpectedTime));
 
     obj.push_back(Pair("stakethreshold", GetStakeCombineThreshold() / COIN));
-    
+
     return obj;
 }
 
@@ -165,8 +165,7 @@ Value checkkernel(const Array& params, bool fHelp)
     if (fHelp || params.size() < 1 || params.size() > 2)
         throw runtime_error(
             "checkkernel [{\"txid\":txid,\"vout\":n},...] [createblocktemplate=false]\n"
-            "Check if one of given inputs is a kernel input at the moment.\n"
-        );
+            "Check if one of given inputs is a kernel input at the moment.\n");
 
     RPCTypeCheck(params, list_of(array_type)(bool_type));
 
@@ -185,8 +184,7 @@ Value checkkernel(const Array& params, bool fHelp)
     int64_t nTime = GetAdjustedTime();
     nTime &= ~STAKE_TIMESTAMP_MASK;
 
-    BOOST_FOREACH(Value& input, inputs)
-    {
+    BOOST_FOREACH (Value& input, inputs) {
         const Object& o = input.get_obj();
 
         const Value& txid_v = find_value(o, "txid");
@@ -204,8 +202,7 @@ Value checkkernel(const Array& params, bool fHelp)
             throw JSONRPCError(RPC_INVALID_PARAMETER, "Invalid parameter, vout must be positive");
 
         COutPoint cInput(uint256(txid), nOutput);
-        if (CheckKernel(pindexPrev, nBits, nTime, cInput))
-        {
+        if (CheckKernel(pindexPrev, nBits, nTime, cInput)) {
             kernel = cInput;
             break;
         }
@@ -228,9 +225,7 @@ Value checkkernel(const Array& params, bool fHelp)
 
     int64_t nFees;
 #ifdef __GNUC__
-#define GCC_VERSION (__GNUC__ * 10000 \
-                     + __GNUC_MINOR__ * 100 \
-                     + __GNUC_PATCHLEVEL__)
+#define GCC_VERSION (__GNUC__ * 10000 + __GNUC_MINOR__ * 100 + __GNUC_PATCHLEVEL__)
 
 /* Test for GCC < 6.3.0 */
 #if GCC_VERSION > 60300
@@ -264,8 +259,7 @@ Value getworkex(const Array& params, bool fHelp)
     if (fHelp || params.size() > 2)
         throw runtime_error(
             "getworkex [data, coinbase]\n"
-            "If [data, coinbase] is not specified, returns extended work data.\n"
-        );
+            "If [data, coinbase] is not specified, returns extended work data.\n");
 
     if (vNodes.empty())
         throw JSONRPCError(-9, "Espers is not connected!");
@@ -273,25 +267,22 @@ Value getworkex(const Array& params, bool fHelp)
     if (IsInitialBlockDownload())
         throw JSONRPCError(-10, "Espers is downloading blocks...");
 
-    typedef map<uint256, pair<CBlock*, CScript> > mapNewBlock_t;
+    typedef map<uint256, pair<CBlock*, CScript>> mapNewBlock_t;
     static mapNewBlock_t mapNewBlock;
     static vector<CBlock*> vNewBlock;
 
-    if (params.size() == 0)
-    {
+    if (params.size() == 0) {
         // Update block
         static unsigned int nTransactionsUpdatedLast;
         static CBlockIndex* pindexPrev;
         static int64_t nStart;
         static CBlock* pblock;
         if (pindexPrev != pindexBest ||
-            (mempool.GetTransactionsUpdated() != nTransactionsUpdatedLast && GetTime() - nStart > 60))
-        {
-            if (pindexPrev != pindexBest)
-            {
+            (mempool.GetTransactionsUpdated() != nTransactionsUpdatedLast && GetTime() - nStart > 60)) {
+            if (pindexPrev != pindexBest) {
                 // Deallocate old blocks since they're obsolete now
                 mapNewBlock.clear();
-                BOOST_FOREACH(CBlock* pblock, vNewBlock)
+                BOOST_FOREACH (CBlock* pblock, vNewBlock)
                     delete pblock;
                 vNewBlock.clear();
             }
@@ -307,7 +298,7 @@ Value getworkex(const Array& params, bool fHelp)
         }
 
         // Update nTime
-        pblock->nTime = max(pindexPrev->GetPastTimeLimit()+1, GetAdjustedTime());
+        pblock->nTime = max(pindexPrev->GetPastTimeLimit() + 1, GetAdjustedTime());
         pblock->nNonce = 0;
 
         // Update nExtraNonce
@@ -329,8 +320,8 @@ Value getworkex(const Array& params, bool fHelp)
         std::vector<uint256> merkle = pblock->GetMerkleBranch(0);
 
         Object result;
-        result.push_back(Pair("data",     HexStr(BEGIN(pdata), END(pdata))));
-        result.push_back(Pair("target",   HexStr(BEGIN(hashTarget), END(hashTarget))));
+        result.push_back(Pair("data", HexStr(BEGIN(pdata), END(pdata))));
+        result.push_back(Pair("target", HexStr(BEGIN(hashTarget), END(hashTarget))));
 
         CDataStream ssTx(SER_NETWORK, PROTOCOL_VERSION);
         ssTx << coinbaseTx;
@@ -338,7 +329,7 @@ Value getworkex(const Array& params, bool fHelp)
 
         Array merkle_arr;
 
-        BOOST_FOREACH(uint256 merkleh, merkle) {
+        BOOST_FOREACH (uint256 merkleh, merkle) {
             merkle_arr.push_back(HexStr(BEGIN(merkleh), END(merkleh)));
         }
 
@@ -346,14 +337,12 @@ Value getworkex(const Array& params, bool fHelp)
 
 
         return result;
-    }
-    else
-    {
+    } else {
         // Parse parameters
         vector<unsigned char> vchData = ParseHex(params[0].get_str());
         vector<unsigned char> coinbase;
 
-        if(params.size() == 2)
+        if (params.size() == 2)
             coinbase = ParseHex(params[1].get_str());
 
         if (vchData.size() != 128)
@@ -362,7 +351,7 @@ Value getworkex(const Array& params, bool fHelp)
         CBlock* pdata = (CBlock*)&vchData[0];
 
         // Byte reverse
-        for (int i = 0; i < 128/4; i++)
+        for (int i = 0; i < 128 / 4; i++)
             ((unsigned int*)pdata)[i] = ByteReverse(((unsigned int*)pdata)[i]);
 
         // Get saved block
@@ -373,7 +362,7 @@ Value getworkex(const Array& params, bool fHelp)
         pblock->nTime = pdata->nTime;
         pblock->nNonce = pdata->nNonce;
 
-        if(coinbase.size() == 0)
+        if (coinbase.size() == 0)
             pblock->vtx[0].vin[0].scriptSig = mapNewBlock[pdata->hashMerkleRoot].second;
         else
             CDataStream(coinbase, SER_NETWORK, PROTOCOL_VERSION) >> pblock->vtx[0]; // FIXME - HACK!
@@ -404,25 +393,22 @@ Value getwork(const Array& params, bool fHelp)
     if (IsInitialBlockDownload())
         throw JSONRPCError(RPC_CLIENT_IN_INITIAL_DOWNLOAD, "Espers is downloading blocks...");
 
-    typedef map<uint256, pair<CBlock*, CScript> > mapNewBlock_t;
-    static mapNewBlock_t mapNewBlock;    // FIXME: thread safety
+    typedef map<uint256, pair<CBlock*, CScript>> mapNewBlock_t;
+    static mapNewBlock_t mapNewBlock; // FIXME: thread safety
     static vector<CBlock*> vNewBlock;
 
-    if (params.size() == 0)
-    {
+    if (params.size() == 0) {
         // Update block
         static unsigned int nTransactionsUpdatedLast;
         static CBlockIndex* pindexPrev;
         static int64_t nStart;
         static CBlock* pblock;
         if (pindexPrev != pindexBest ||
-            (mempool.GetTransactionsUpdated() != nTransactionsUpdatedLast && GetTime() - nStart > 60))
-        {
-            if (pindexPrev != pindexBest)
-            {
+            (mempool.GetTransactionsUpdated() != nTransactionsUpdatedLast && GetTime() - nStart > 60)) {
+            if (pindexPrev != pindexBest) {
                 // Deallocate old blocks since they're obsolete now
                 mapNewBlock.clear();
-                BOOST_FOREACH(CBlock* pblock, vNewBlock)
+                BOOST_FOREACH (CBlock* pblock, vNewBlock)
                     delete pblock;
                 vNewBlock.clear();
             }
@@ -466,13 +452,11 @@ Value getwork(const Array& params, bool fHelp)
 
         Object result;
         result.push_back(Pair("midstate", HexStr(BEGIN(pmidstate), END(pmidstate)))); // deprecated
-        result.push_back(Pair("data",     HexStr(BEGIN(pdata), END(pdata))));
-        result.push_back(Pair("hash1",    HexStr(BEGIN(phash1), END(phash1)))); // deprecated
-        result.push_back(Pair("target",   HexStr(BEGIN(hashTarget), END(hashTarget))));
+        result.push_back(Pair("data", HexStr(BEGIN(pdata), END(pdata))));
+        result.push_back(Pair("hash1", HexStr(BEGIN(phash1), END(phash1)))); // deprecated
+        result.push_back(Pair("target", HexStr(BEGIN(hashTarget), END(hashTarget))));
         return result;
-    }
-    else
-    {
+    } else {
         // Parse parameters
         vector<unsigned char> vchData = ParseHex(params[0].get_str());
         if (vchData.size() != 128)
@@ -480,7 +464,7 @@ Value getwork(const Array& params, bool fHelp)
         CBlock* pdata = (CBlock*)&vchData[0];
 
         // Byte reverse
-        for (int i = 0; i < 128/4; i++)
+        for (int i = 0; i < 128 / 4; i++)
             ((unsigned int*)pdata)[i] = ByteReverse(((unsigned int*)pdata)[i]);
 
         // Get saved block
@@ -522,17 +506,14 @@ Value getblocktemplate(const Array& params, bool fHelp)
             "See https://en.bitcoin.it/wiki/BIP_0022 for full specification.");
 
     std::string strMode = "template";
-    if (params.size() > 0)
-    {
+    if (params.size() > 0) {
         const Object& oparam = params[0].get_obj();
         const Value& modeval = find_value(oparam, "mode");
         if (modeval.type() == str_type)
             strMode = modeval.get_str();
-        else if (modeval.type() == null_type)
-        {
+        else if (modeval.type() == null_type) {
             /* Do nothing */
-        }
-        else
+        } else
             throw JSONRPCError(RPC_INVALID_PARAMETER, "Invalid mode");
     }
 
@@ -551,8 +532,7 @@ Value getblocktemplate(const Array& params, bool fHelp)
     static int64_t nStart;
     static CBlock* pblock;
     if (pindexPrev != pindexBest ||
-        (mempool.GetTransactionsUpdated() != nTransactionsUpdatedLast && GetTime() - nStart > 5))
-    {
+        (mempool.GetTransactionsUpdated() != nTransactionsUpdatedLast && GetTime() - nStart > 5)) {
         // Clear pindexPrev so future calls make a new block, despite any failures from here on
         pindexPrev = NULL;
 
@@ -562,8 +542,7 @@ Value getblocktemplate(const Array& params, bool fHelp)
         nStart = GetTime();
 
         // Create new block
-        if(pblock)
-        {
+        if (pblock) {
             delete pblock;
             pblock = NULL;
         }
@@ -583,8 +562,7 @@ Value getblocktemplate(const Array& params, bool fHelp)
     map<uint256, int64_t> setTxIndex;
     int i = 0;
     CTxDB txdb("r");
-    BOOST_FOREACH (CTransaction& tx, pblock->vtx)
-    {
+    BOOST_FOREACH (CTransaction& tx, pblock->vtx) {
         uint256 txHash = tx.GetHash();
         setTxIndex[txHash] = i++;
 
@@ -602,13 +580,11 @@ Value getblocktemplate(const Array& params, bool fHelp)
         MapPrevTx mapInputs;
         map<uint256, CTxIndex> mapUnused;
         bool fInvalid = false;
-        if (tx.FetchInputs(txdb, mapUnused, false, false, mapInputs, fInvalid))
-        {
+        if (tx.FetchInputs(txdb, mapUnused, false, false, mapInputs, fInvalid)) {
             entry.push_back(Pair("fee", (int64_t)(tx.GetValueIn(mapInputs) - tx.GetValueOut())));
 
             Array deps;
-            BOOST_FOREACH (MapPrevTx::value_type& inp, mapInputs)
-            {
+            BOOST_FOREACH (MapPrevTx::value_type& inp, mapInputs) {
                 if (setTxIndex.count(inp.first))
                     deps.push_back(setTxIndex[inp.first]);
             }
@@ -628,8 +604,7 @@ Value getblocktemplate(const Array& params, bool fHelp)
     uint256 hashTarget = CBigNum().SetCompact(pblock->nBits).getuint256();
 
     static Array aMutable;
-    if (aMutable.empty())
-    {
+    if (aMutable.empty()) {
         aMutable.push_back("time");
         aMutable.push_back("transactions");
         aMutable.push_back("prevblock");
@@ -643,14 +618,14 @@ Value getblocktemplate(const Array& params, bool fHelp)
     result.push_back(Pair("coinbaseaux", aux));
     result.push_back(Pair("coinbasevalue", (int64_t)pblock->vtx[0].vout[0].nValue));
     result.push_back(Pair("target", hashTarget.GetHex()));
-    result.push_back(Pair("mintime", (int64_t)pindexPrev->GetPastTimeLimit()+1));
+    result.push_back(Pair("mintime", (int64_t)pindexPrev->GetPastTimeLimit() + 1));
     result.push_back(Pair("mutable", aMutable));
     result.push_back(Pair("noncerange", "00000000ffffffff"));
     result.push_back(Pair("sigoplimit", (int64_t)MAX_BLOCK_SIGOPS));
     result.push_back(Pair("sizelimit", (int64_t)MAX_BLOCK_SIZE));
     result.push_back(Pair("curtime", (int64_t)pblock->nTime));
     result.push_back(Pair("bits", strprintf("%08x", pblock->nBits)));
-    result.push_back(Pair("height", (int64_t)(pindexPrev->nHeight+1)));
+    result.push_back(Pair("height", (int64_t)(pindexPrev->nHeight + 1)));
 
     return result;
 }
@@ -669,8 +644,7 @@ Value submitblock(const Array& params, bool fHelp)
     CBlock block;
     try {
         ssBlock >> block;
-    }
-    catch (std::exception &e) {
+    } catch (std::exception& e) {
         throw JSONRPCError(RPC_DESERIALIZATION_ERROR, "Block decode failed");
     }
 
@@ -680,4 +654,3 @@ Value submitblock(const Array& params, bool fHelp)
 
     return Value::null;
 }
-

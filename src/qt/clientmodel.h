@@ -21,12 +21,12 @@ class ClientModel : public QObject
     Q_OBJECT
 
 public:
-    explicit ClientModel(OptionsModel *optionsModel, QObject *parent = 0);
+    explicit ClientModel(OptionsModel* optionsModel, QObject* parent = 0);
     ~ClientModel();
 
-    OptionsModel *getOptionsModel();
-    PeerTableModel *getPeerTableModel();
-    BanTableModel *getBanTableModel();
+    OptionsModel* getOptionsModel();
+    PeerTableModel* getPeerTableModel();
+    BanTableModel* getBanTableModel();
 
     int getNumConnections() const;
     int getNumBlocks() const;
@@ -54,18 +54,18 @@ public:
 
     //! Get and set the content of the Espers.conf file
     QString getConfigFileContent() const;
-    void setConfigFileContent(const QString &content);
+    void setConfigFileContent(const QString& content);
 
 private:
-    OptionsModel *optionsModel;
-    PeerTableModel *peerTableModel;
-    BanTableModel *banTableModel;
+    OptionsModel* optionsModel;
+    PeerTableModel* peerTableModel;
+    BanTableModel* banTableModel;
 
     int cachedNumBlocks;
 
     int numBlocksAtStartup;
 
-    QTimer *pollTimer;
+    QTimer* pollTimer;
 
     void subscribeToCoreSignals();
     void unsubscribeFromCoreSignals();
@@ -73,16 +73,16 @@ private:
 signals:
     void numConnectionsChanged(int count);
     void numBlocksChanged(int count);
-    void alertsChanged(const QString &warnings);
+    void alertsChanged(const QString& warnings);
     void bytesChanged(quint64 totalBytesIn, quint64 totalBytesOut);
 
     //! Asynchronous message notification
-    void message(const QString &title, const QString &message, bool modal, unsigned int style);
+    void message(const QString& title, const QString& message, bool modal, unsigned int style);
 
 public slots:
     void updateTimer();
     void updateNumConnections(int numConnections);
-    void updateAlert(const QString &hash, int status);
+    void updateAlert(const QString& hash, int status);
     void updateBanlist();
 };
 

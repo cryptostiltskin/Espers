@@ -10,13 +10,13 @@
 
 #include <QDir>
 #include <QFile>
-#include <QProcess>
-#include <QTime>
-#include <QTimer>
-#include <QStringList>
 #include <QMap>
+#include <QProcess>
 #include <QSettings>
 #include <QSlider>
+#include <QStringList>
+#include <QTime>
+#include <QTimer>
 
 double getBlockHardness(int);
 double getTxTotalValue(std::string);
@@ -36,7 +36,7 @@ const CBlockIndex* getBlockIndex(int);
 int64_t getInputValue(CTransaction, CScript);
 
 namespace Ui {
-    class BlockBrowser;
+class BlockBrowser;
 }
 class ClientModel;
 class WalletModel;
@@ -51,9 +51,9 @@ class BlockBrowser : public QWidget
     Q_OBJECT
 
 public:
-    explicit BlockBrowser(QWidget *parent = 0);
+    explicit BlockBrowser(QWidget* parent = 0);
     ~BlockBrowser();
-    void setModel(WalletModel *model);
+    void setModel(WalletModel* model);
 
     //Statistics
     int heightPrevious;
@@ -79,12 +79,11 @@ public slots:
 signals:
 
 private:
-    Ui::BlockBrowser *ui;
-    WalletModel *model;
-ClientModel *clientModel;
+    Ui::BlockBrowser* ui;
+    WalletModel* model;
+    ClientModel* clientModel;
 
 private slots:
-
 };
 
 #endif // BLOCKBROWSER_H

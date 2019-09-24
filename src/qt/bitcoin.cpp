@@ -6,15 +6,15 @@
 
 #include "bitcoingui.h"
 #include "clientmodel.h"
-#include "walletmodel.h"
-#include "optionsmodel.h"
-#include "guiutil.h"
+#include "core/wallet.h"
 #include "guiconstants.h"
+#include "guiutil.h"
+#include "optionsmodel.h"
+#include "paymentserver.h"
+#include "ui/ui_interface.h"
 #include "util/init.h"
 #include "util/util.h"
-#include "core/wallet.h"
-#include "ui/ui_interface.h"
-#include "paymentserver.h"
+#include "walletmodel.h"
 #ifdef Q_OS_MAC
 #include "macdockiconhandler.h"
 #endif
@@ -23,11 +23,11 @@
 #if QT_VERSION < 0x050000
 #include <QTextCodec>
 #endif
+#include <QLibraryInfo>
 #include <QLocale>
+#include <QSplashScreen>
 #include <QTimer>
 #include <QTranslator>
-#include <QSplashScreen>
-#include <QLibraryInfo>
 
 #if defined(ESPERS_NEED_QT_PLUGINS) && !defined(_ESPERS_QT_PLUGINS_INCLUDED)
 #define _ESPERS_QT_PLUGINS_INCLUDED
@@ -41,25 +41,22 @@ Q_IMPORT_PLUGIN(qtaccessiblewidgets)
 #endif
 
 // Need a global reference for the notifications to find the GUI
-static BitcoinGUI *guiref;
-static QSplashScreen *splashref;
+static BitcoinGUI* guiref;
+static QSplashScreen* splashref;
 
 static void ThreadSafeMessageBox(const std::string& message, const std::string& caption, unsigned int style)
 {
     // Message from network thread
-    if(guiref)
-    {
+    if (guiref) {
         bool modal = (style & CClientUIInterface::MODAL);
         // In case of modal message, use blocking connection to wait for user to click a button
         QMetaObject::invokeMethod(guiref, "message",
-                                   modal ? GUIUtil::blockingGUIThreadConnection() : Qt::QueuedConnection,
-                                   Q_ARG(QString, QString::fromStdString(caption)),
-                                   Q_ARG(QString, QString::fromStdString(message)),
-                                   Q_ARG(bool, modal),
-                                   Q_ARG(unsigned int, style));
-    }
-    else
-    {
+            modal ? GUIUtil::blockingGUIThreadConnection() : Qt::QueuedConnection,
+            Q_ARG(QString, QString::fromStdString(caption)),
+            Q_ARG(QString, QString::fromStdString(message)),
+            Q_ARG(bool, modal),
+            Q_ARG(unsigned int, style));
+    } else {
         LogPrintf("%s: %s\n", caption, message);
         fprintf(stderr, "%s: %s\n", caption.c_str(), message.c_str());
     }
@@ -67,24 +64,23 @@ static void ThreadSafeMessageBox(const std::string& message, const std::string& 
 
 static bool ThreadSafeAskFee(int64_t nFeeRequired, const std::string& strCaption)
 {
-    if(!guiref)
+    if (!guiref)
         return false;
-    if(nFeeRequired < MIN_TX_FEE || nFeeRequired <= nTransactionFee || fDaemon)
+    if (nFeeRequired < MIN_TX_FEE || nFeeRequired <= nTransactionFee || fDaemon)
         return true;
     bool payFee = false;
 
     QMetaObject::invokeMethod(guiref, "askFee", GUIUtil::blockingGUIThreadConnection(),
-                               Q_ARG(qint64, nFeeRequired),
-                               Q_ARG(bool*, &payFee));
+        Q_ARG(qint64, nFeeRequired),
+        Q_ARG(bool*, &payFee));
 
     return payFee;
 }
 
-static void InitMessage(const std::string &message)
+static void InitMessage(const std::string& message)
 {
-    if(splashref)
-    {
-        splashref->showMessage(QString::fromStdString(message), Qt::AlignBottom|Qt::AlignHCenter, QColor(50, 143, 231));
+    if (splashref) {
+        splashref->showMessage(QString::fromStdString(message), Qt::AlignBottom | Qt::AlignHCenter, QColor(50, 143, 231));
         QApplication::instance()->processEvents();
     }
     LogPrintf("init message: %s\n", message);
@@ -100,7 +96,7 @@ static std::string Translate(const char* psz)
 
 /* Handle runaway exceptions. Shows a message box with the problem and quits the program.
  */
-static void handleRunawayException(std::exception *e)
+static void handleRunawayException(std::exception* e)
 {
     PrintExceptionContinue(e, "Runaway exception");
     QMessageBox::critical(0, "Runaway exception", BitcoinGUI::tr("A fatal error occurred. Espers can no longer continue safely and will quit.") + QString("\n\n") + QString::fromStdString(strMiscWarning));
@@ -109,21 +105,21 @@ static void handleRunawayException(std::exception *e)
 
 /* qDebug() message handler --> debug.log */
 #if QT_VERSION < 0x050000
-void DebugMessageHandler(QtMsgType type, const char * msg)
+void DebugMessageHandler(QtMsgType type, const char* msg)
 {
-    const char *category = (type == QtDebugMsg) ? "qt" : NULL;
+    const char* category = (type == QtDebugMsg) ? "qt" : NULL;
     LogPrint(category, "GUI: %s\n", msg);
 }
 #else
-void DebugMessageHandler(QtMsgType type, const QMessageLogContext& context, const QString &msg)
+void DebugMessageHandler(QtMsgType type, const QMessageLogContext& context, const QString& msg)
 {
-    const char *category = (type == QtDebugMsg) ? "qt" : NULL;
+    const char* category = (type == QtDebugMsg) ? "qt" : NULL;
     LogPrint(category, "GUI: %s\n", msg.toStdString());
 }
 #endif
 
 #ifndef ESPERS_QT_TEST
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
     fHaveGUI = true;
 
@@ -158,12 +154,11 @@ int main(int argc, char *argv[])
     ParseParameters(argc, argv);
 
     // ... then bitcoin.conf:
-    if (!boost::filesystem::is_directory(GetDataDir(false)))
-    {
+    if (!boost::filesystem::is_directory(GetDataDir(false))) {
         // This message can not be translated, as translation is not initialized yet
         // (which not yet possible because lang=XX can be overridden in bitcoin.conf in the data directory)
         QMessageBox::critical(0, "Espers",
-                              QString("Error: Specified data directory \"%1\" does not exist.").arg(QString::fromStdString(mapArgs["-datadir"])));
+            QString("Error: Specified data directory \"%1\" does not exist.").arg(QString::fromStdString(mapArgs["-datadir"])));
         return 1;
     }
     ReadConfigFile(mapArgs, mapMultiArgs);
@@ -184,7 +179,7 @@ int main(int argc, char *argv[])
     // as it is used to locate QSettings)
     app.setOrganizationName("Espers");
     app.setOrganizationDomain("CryptoCoderz.com");
-    if(GetBoolArg("-testnet", false)) // Separate UI settings for testnet
+    if (GetBoolArg("-testnet", false)) // Separate UI settings for testnet
         app.setApplicationName("Espers-Qt-testnet");
     else
         app.setApplicationName("Espers-Qt");
@@ -227,8 +222,7 @@ int main(int argc, char *argv[])
 
     // Show help message immediately after parsing command-line options (for "-lang") and setting locale,
     // but before showing splash screen.
-    if (mapArgs.count("-?") || mapArgs.count("--help"))
-    {
+    if (mapArgs.count("-?") || mapArgs.count("--help")) {
         GUIUtil::HelpMessageBox help;
         help.showOrPrint();
         return 1;
@@ -236,15 +230,13 @@ int main(int argc, char *argv[])
 
 #ifdef Q_OS_MAC
     // on mac, also change the icon now because it would look strange to have a testnet splash (green) and a std app icon (orange)
-    if(GetBoolArg("-testnet", false))
-    {
+    if (GetBoolArg("-testnet", false)) {
         MacDockIconHandler::instance()->setIcon(QIcon(":icons/bitcoin_testnet"));
     }
 #endif
 
     QSplashScreen splash(QPixmap(":/images/splash"), 0);
-    if (GetBoolArg("-splash", true) && !GetBoolArg("-min", false))
-    {
+    if (GetBoolArg("-splash", true) && !GetBoolArg("-min", false)) {
         splash.show();
         splashref = &splash;
     }
@@ -253,8 +245,7 @@ int main(int argc, char *argv[])
 
     app.setQuitOnLastWindowClosed(false);
 
-    try
-    {
+    try {
         // Regenerate startup link, to fix links to old versions
         if (GUIUtil::GetStartOnSystemStartup())
             GUIUtil::SetStartOnSystemStartup(true);
@@ -268,8 +259,7 @@ int main(int argc, char *argv[])
         QObject::connect(pollShutdownTimer, SIGNAL(timeout()), guiref, SLOT(detectShutdown()));
         pollShutdownTimer->start(200);
 
-        if(AppInit2(threadGroup))
-        {
+        if (AppInit2(threadGroup)) {
             {
                 // Put this in a block, so that the Model objects are cleaned up before
                 // calling Shutdown().
@@ -286,12 +276,9 @@ int main(int argc, char *argv[])
                 window.setWalletModel(&walletModel);
 
                 // If -min option passed, start window minimized.
-                if(GetBoolArg("-min", false))
-                {
+                if (GetBoolArg("-min", false)) {
                     window.showMinimized();
-                }
-                else
-                {
+                } else {
                     window.show();
                 }
 
@@ -311,9 +298,7 @@ int main(int argc, char *argv[])
             threadGroup.interrupt_all();
             threadGroup.join_all();
             Shutdown();
-        }
-        else
-        {
+        } else {
             threadGroup.interrupt_all();
             threadGroup.join_all();
             Shutdown();
